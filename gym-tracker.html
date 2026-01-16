@@ -1,0 +1,1116 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>GymTracker</title>
+  <link rel="manifest" href="data:application/json;base64,eyJuYW1lIjoiR3ltVHJhY2tlciIsInNob3J0X25hbWUiOiJHeW1UcmFja2VyIiwic3RhcnRfdXJsIjoiLiIsImRpc3BsYXkiOiJzdGFuZGFsb25lIiwiYmFja2dyb3VuZF9jb2xvciI6IiMwODA4MDgiLCJ0aGVtZV9jb2xvciI6IiNGRjQ1MDAiLCJpY29ucyI6W3sic3JjIjoiZGF0YTppbWFnZS9zdmcreG1sLCUzQ3N2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCAxMDAgMTAwJyUzRSUzQ3JlY3Qgd2lkdGg9JzEwMCcgaGVpZ2h0PScxMDAnIGZpbGw9JyUyM0ZGNDUwMCcvJTNFJTNDdGV4dCB4PSc1MCUyNScgeT0nNjAlMjUnIGZvbnQtc2l6ZT0nNjAnIGZpbGw9JyUyMzA4MDgwOCcgZm9udC1mYW1pbHk9J0FyaWFsJTJDc2Fucy1zZXJpZiclM0VHJTNDL3RleHQlM0UlM0Mvc3ZnJTNFIiwic2l6ZXMiOiIxOTJ4MTkyIiwidHlwZSI6ImltYWdlL3N2Zyt4bWwifV19">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Antonio:wght@700&display=swap');
+    
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+    
+    :root {
+      --bg-primary: #080808;
+      --bg-secondary: #141414;
+      --bg-tertiary: #1F1F1F;
+      --text-primary: #FAFAFA;
+      --text-secondary: #A0A0A0;
+      --accent: #FF4500;
+      --accent-hover: #FF6B35;
+      --success: #00FF87;
+      --border: #2A2A2A;
+      --shadow: rgba(255, 69, 0, 0.2);
+    }
+    
+    body {
+      font-family: 'Space Mono', monospace;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      min-height: 100vh;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+    
+    .app {
+      max-width: 100%;
+      margin: 0 auto;
+      padding-bottom: 80px;
+    }
+    
+    /* Header */
+    .header {
+      background: var(--bg-secondary);
+      border-bottom: 2px solid var(--accent);
+      padding: 20px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      backdrop-filter: blur(10px);
+    }
+    
+    .header h1 {
+      font-family: 'Antonio', sans-serif;
+      font-size: 32px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--accent);
+    }
+    
+    .header-subtitle {
+      font-size: 11px;
+      color: var(--text-secondary);
+      margin-top: 4px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    
+    /* Navigation */
+    .nav {
+      display: flex;
+      gap: 8px;
+      margin-top: 16px;
+    }
+    
+    .nav-btn {
+      flex: 1;
+      padding: 12px;
+      background: var(--bg-tertiary);
+      border: 1px solid var(--border);
+      color: var(--text-secondary);
+      font-family: 'Space Mono', monospace;
+      font-size: 12px;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-weight: 700;
+      letter-spacing: 1px;
+    }
+    
+    .nav-btn.active {
+      background: var(--accent);
+      color: var(--bg-primary);
+      border-color: var(--accent);
+    }
+    
+    .nav-btn:active {
+      transform: scale(0.98);
+    }
+    
+    /* Content */
+    .content {
+      padding: 20px;
+    }
+    
+    .view {
+      display: none;
+    }
+    
+    .view.active {
+      display: block;
+      animation: fadeIn 0.3s ease;
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    /* Button styles */
+    .btn {
+      width: 100%;
+      padding: 16px;
+      background: var(--accent);
+      border: none;
+      color: var(--bg-primary);
+      font-family: 'Space Mono', monospace;
+      font-size: 14px;
+      font-weight: 700;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: all 0.2s;
+      letter-spacing: 1px;
+    }
+    
+    .btn:active {
+      transform: scale(0.98);
+      background: var(--accent-hover);
+    }
+    
+    .btn-secondary {
+      background: var(--bg-tertiary);
+      color: var(--text-primary);
+      border: 1px solid var(--border);
+    }
+    
+    .btn-small {
+      padding: 8px 12px;
+      font-size: 11px;
+      width: auto;
+    }
+    
+    /* Form elements */
+    .form-group {
+      margin-bottom: 20px;
+    }
+    
+    .form-label {
+      display: block;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--text-secondary);
+      margin-bottom: 8px;
+      font-weight: 700;
+    }
+    
+    .form-input {
+      width: 100%;
+      padding: 14px;
+      background: var(--bg-tertiary);
+      border: 1px solid var(--border);
+      color: var(--text-primary);
+      font-family: 'Space Mono', monospace;
+      font-size: 14px;
+      transition: border-color 0.2s;
+    }
+    
+    .form-input:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--shadow);
+    }
+    
+    /* Cards */
+    .card {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      padding: 16px;
+      margin-bottom: 12px;
+      position: relative;
+      transition: all 0.2s;
+      cursor: pointer;
+    }
+    
+    .card:active {
+      transform: scale(0.99);
+      border-color: var(--accent);
+    }
+    
+    .card-title {
+      font-size: 16px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 8px;
+    }
+    
+    .card-meta {
+      font-size: 11px;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    
+    .card-actions {
+      display: flex;
+      gap: 8px;
+      margin-top: 12px;
+    }
+    
+    /* Exercise item */
+    .exercise-item {
+      background: var(--bg-tertiary);
+      border-left: 3px solid var(--accent);
+      padding: 12px;
+      margin-bottom: 8px;
+    }
+    
+    .exercise-name {
+      font-weight: 700;
+      font-size: 14px;
+      margin-bottom: 4px;
+    }
+    
+    .exercise-rest {
+      font-size: 11px;
+      color: var(--success);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    
+    /* Workout tracker */
+    .tracker-exercise {
+      background: var(--bg-secondary);
+      border: 2px solid var(--border);
+      padding: 16px;
+      margin-bottom: 16px;
+    }
+    
+    .tracker-exercise.current {
+      border-color: var(--accent);
+      box-shadow: 0 0 20px var(--shadow);
+    }
+    
+    .tracker-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+    
+    .tracker-title {
+      font-size: 18px;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+    
+    .tracker-rest {
+      font-size: 24px;
+      font-weight: 700;
+      color: var(--success);
+      font-family: 'Antonio', sans-serif;
+    }
+    
+    .tracker-rest.active {
+      animation: pulse 1s infinite;
+    }
+    
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.6; }
+    }
+    
+    .set-row {
+      display: grid;
+      grid-template-columns: 60px 1fr 1fr 80px;
+      gap: 8px;
+      margin-bottom: 8px;
+      align-items: center;
+    }
+    
+    .set-label {
+      font-size: 11px;
+      text-transform: uppercase;
+      color: var(--text-secondary);
+      letter-spacing: 1px;
+      font-weight: 700;
+    }
+    
+    .set-input {
+      padding: 10px;
+      background: var(--bg-tertiary);
+      border: 1px solid var(--border);
+      color: var(--text-primary);
+      font-family: 'Space Mono', monospace;
+      font-size: 16px;
+      text-align: center;
+      font-weight: 700;
+    }
+    
+    .set-input:focus {
+      outline: none;
+      border-color: var(--accent);
+    }
+    
+    .set-done {
+      background: var(--success);
+      color: var(--bg-primary);
+      padding: 10px;
+      font-size: 11px;
+      font-weight: 700;
+      border: none;
+      cursor: pointer;
+      text-transform: uppercase;
+    }
+    
+    .set-done:active {
+      transform: scale(0.95);
+    }
+    
+    .set-done.completed {
+      background: var(--bg-tertiary);
+      color: var(--success);
+      border: 1px solid var(--success);
+    }
+    
+    /* Timer */
+    .rest-timer {
+      background: var(--bg-primary);
+      border: 2px solid var(--success);
+      padding: 24px;
+      text-align: center;
+      margin-bottom: 16px;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .rest-timer-bg {
+      position: absolute;
+      top: 0;
+      left: 0;
+      height: 100%;
+      background: var(--success);
+      opacity: 0.1;
+      transition: width 1s linear;
+    }
+    
+    .rest-timer-content {
+      position: relative;
+      z-index: 1;
+    }
+    
+    .rest-timer-label {
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      color: var(--text-secondary);
+      margin-bottom: 8px;
+    }
+    
+    .rest-timer-time {
+      font-family: 'Antonio', sans-serif;
+      font-size: 56px;
+      color: var(--success);
+      line-height: 1;
+    }
+    
+    /* Empty state */
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+      color: var(--text-secondary);
+    }
+    
+    .empty-icon {
+      font-size: 48px;
+      margin-bottom: 16px;
+    }
+    
+    .empty-text {
+      font-size: 14px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    
+    /* Modal */
+    .modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.95);
+      z-index: 1000;
+      display: none;
+      padding: 20px;
+      overflow-y: auto;
+    }
+    
+    .modal.active {
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      animation: fadeIn 0.2s;
+    }
+    
+    .modal-content {
+      background: var(--bg-secondary);
+      border: 2px solid var(--accent);
+      padding: 24px;
+      width: 100%;
+      max-width: 500px;
+      margin-top: 20px;
+    }
+    
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+    }
+    
+    .modal-title {
+      font-family: 'Antonio', sans-serif;
+      font-size: 24px;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+    }
+    
+    .modal-close {
+      background: none;
+      border: none;
+      color: var(--text-secondary);
+      font-size: 24px;
+      cursor: pointer;
+      padding: 0;
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .modal-close:active {
+      color: var(--accent);
+    }
+    
+    /* Stats badge */
+    .stats-badge {
+      display: inline-block;
+      background: var(--bg-primary);
+      border: 1px solid var(--border);
+      padding: 4px 8px;
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-right: 8px;
+      margin-top: 4px;
+    }
+    
+    /* Delete button */
+    .btn-delete {
+      background: transparent;
+      color: #FF3B30;
+      border: 1px solid #FF3B30;
+    }
+    
+    .btn-delete:active {
+      background: #FF3B30;
+      color: var(--bg-primary);
+    }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+  <script type="text/babel">
+    const { useState, useEffect, useRef } = React;
+
+    // Storage utilities
+    const storage = {
+      get: (key) => {
+        try {
+          const item = localStorage.getItem(key);
+          return item ? JSON.parse(item) : null;
+        } catch (e) {
+          return null;
+        }
+      },
+      set: (key, value) => {
+        try {
+          localStorage.setItem(key, JSON.stringify(value));
+        } catch (e) {
+          console.error('Storage error:', e);
+        }
+      }
+    };
+
+    // Generate unique ID
+    const generateId = () => Date.now().toString(36) + Math.random().toString(36).substr(2);
+
+    function App() {
+      const [view, setView] = useState('programs');
+      const [programs, setPrograms] = useState([]);
+      const [showModal, setShowModal] = useState(false);
+      const [modalType, setModalType] = useState('');
+      const [currentProgram, setCurrentProgram] = useState(null);
+      const [currentSession, setCurrentSession] = useState(null);
+      const [activeWorkout, setActiveWorkout] = useState(null);
+
+      // Load data on mount
+      useEffect(() => {
+        const savedPrograms = storage.get('gym_programs') || [];
+        setPrograms(savedPrograms);
+      }, []);
+
+      // Save data on change
+      useEffect(() => {
+        storage.set('gym_programs', programs);
+      }, [programs]);
+
+      const openModal = (type, program = null, session = null) => {
+        setModalType(type);
+        setCurrentProgram(program);
+        setCurrentSession(session);
+        setShowModal(true);
+      };
+
+      const closeModal = () => {
+        setShowModal(false);
+        setModalType('');
+        setCurrentProgram(null);
+        setCurrentSession(null);
+      };
+
+      const addProgram = (name) => {
+        const newProgram = {
+          id: generateId(),
+          name,
+          sessions: [],
+          createdAt: Date.now()
+        };
+        setPrograms([...programs, newProgram]);
+        closeModal();
+      };
+
+      const deleteProgram = (programId) => {
+        if (confirm('Supprimer ce programme ?')) {
+          setPrograms(programs.filter(p => p.id !== programId));
+        }
+      };
+
+      const addSession = (programId, name) => {
+        const newSession = {
+          id: generateId(),
+          name,
+          exercises: []
+        };
+        setPrograms(programs.map(p => 
+          p.id === programId 
+            ? { ...p, sessions: [...p.sessions, newSession] }
+            : p
+        ));
+        closeModal();
+      };
+
+      const deleteSession = (programId, sessionId) => {
+        if (confirm('Supprimer cette séance ?')) {
+          setPrograms(programs.map(p => 
+            p.id === programId
+              ? { ...p, sessions: p.sessions.filter(s => s.id !== sessionId) }
+              : p
+          ));
+        }
+      };
+
+      const addExercise = (programId, sessionId, exerciseData) => {
+        const newExercise = {
+          id: generateId(),
+          ...exerciseData
+        };
+        setPrograms(programs.map(p => 
+          p.id === programId
+            ? {
+                ...p,
+                sessions: p.sessions.map(s =>
+                  s.id === sessionId
+                    ? { ...s, exercises: [...s.exercises, newExercise] }
+                    : s
+                )
+              }
+            : p
+        ));
+        closeModal();
+      };
+
+      const deleteExercise = (programId, sessionId, exerciseId) => {
+        if (confirm('Supprimer cet exercice ?')) {
+          setPrograms(programs.map(p => 
+            p.id === programId
+              ? {
+                  ...p,
+                  sessions: p.sessions.map(s =>
+                    s.id === sessionId
+                      ? { ...s, exercises: s.exercises.filter(e => e.id !== exerciseId) }
+                      : s
+                  )
+                }
+              : p
+          ));
+        }
+      };
+
+      const startWorkout = (program, session) => {
+        const workout = {
+          program,
+          session,
+          exercises: session.exercises.map(ex => ({
+            ...ex,
+            sets: Array(ex.sets).fill(null).map(() => ({
+              reps: '',
+              weight: '',
+              completed: false
+            }))
+          })),
+          startedAt: Date.now()
+        };
+        setActiveWorkout(workout);
+        setView('workout');
+      };
+
+      return (
+        <div className="app">
+          <header className="header">
+            <h1>GYMTRACKER</h1>
+            <div className="header-subtitle">Muscle Building System</div>
+            <nav className="nav">
+              <button 
+                className={`nav-btn ${view === 'programs' ? 'active' : ''}`}
+                onClick={() => setView('programs')}
+              >
+                Programmes
+              </button>
+              <button 
+                className={`nav-btn ${view === 'workout' ? 'active' : ''}`}
+                onClick={() => setView('workout')}
+              >
+                Entraînement
+              </button>
+            </nav>
+          </header>
+
+          <div className="content">
+            {view === 'programs' && (
+              <ProgramsView 
+                programs={programs}
+                onAddProgram={() => openModal('program')}
+                onDeleteProgram={deleteProgram}
+                onAddSession={(program) => openModal('session', program)}
+                onDeleteSession={deleteSession}
+                onAddExercise={(program, session) => openModal('exercise', program, session)}
+                onDeleteExercise={deleteExercise}
+                onStartWorkout={startWorkout}
+              />
+            )}
+
+            {view === 'workout' && (
+              <WorkoutView 
+                workout={activeWorkout}
+                onUpdateWorkout={setActiveWorkout}
+                onEndWorkout={() => {
+                  setActiveWorkout(null);
+                  setView('programs');
+                }}
+              />
+            )}
+          </div>
+
+          {showModal && (
+            <Modal
+              type={modalType}
+              program={currentProgram}
+              session={currentSession}
+              onClose={closeModal}
+              onAddProgram={addProgram}
+              onAddSession={addSession}
+              onAddExercise={addExercise}
+            />
+          )}
+        </div>
+      );
+    }
+
+    function ProgramsView({ programs, onAddProgram, onDeleteProgram, onAddSession, onDeleteSession, onAddExercise, onDeleteExercise, onStartWorkout }) {
+      const [expandedProgram, setExpandedProgram] = useState(null);
+      const [expandedSession, setExpandedSession] = useState(null);
+
+      if (programs.length === 0) {
+        return (
+          <div className="view active">
+            <div className="empty-state">
+              <div className="empty-icon">💪</div>
+              <div className="empty-text">Aucun programme</div>
+            </div>
+            <button className="btn" onClick={onAddProgram}>
+              Créer un programme
+            </button>
+          </div>
+        );
+      }
+
+      return (
+        <div className="view active">
+          {programs.map(program => (
+            <div key={program.id} className="card">
+              <div onClick={() => setExpandedProgram(expandedProgram === program.id ? null : program.id)}>
+                <div className="card-title">{program.name}</div>
+                <div className="card-meta">
+                  {program.sessions.length} séance{program.sessions.length > 1 ? 's' : ''}
+                </div>
+              </div>
+
+              {expandedProgram === program.id && (
+                <div style={{ marginTop: '16px' }}>
+                  {program.sessions.map(session => (
+                    <div key={session.id} style={{ marginBottom: '12px' }}>
+                      <div 
+                        className="exercise-item"
+                        onClick={() => setExpandedSession(expandedSession === session.id ? null : session.id)}
+                      >
+                        <div className="exercise-name">{session.name}</div>
+                        <div className="exercise-rest">
+                          {session.exercises.length} exercice{session.exercises.length > 1 ? 's' : ''}
+                        </div>
+                      </div>
+
+                      {expandedSession === session.id && (
+                        <div style={{ marginTop: '8px', paddingLeft: '12px' }}>
+                          {session.exercises.map(exercise => (
+                            <div key={exercise.id} style={{ 
+                              background: 'var(--bg-primary)', 
+                              padding: '8px', 
+                              marginBottom: '4px',
+                              fontSize: '12px',
+                              display: 'flex',
+                              justifyContent: 'space-between',
+                              alignItems: 'center'
+                            }}>
+                              <div>
+                                <div style={{ fontWeight: 'bold' }}>{exercise.name}</div>
+                                <div style={{ color: 'var(--text-secondary)', fontSize: '10px' }}>
+                                  {exercise.sets} séries • Repos: {exercise.restTime}s
+                                </div>
+                              </div>
+                              <button 
+                                className="btn-small btn-delete"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  onDeleteExercise(program.id, session.id, exercise.id);
+                                }}
+                              >
+                                ✕
+                              </button>
+                            </div>
+                          ))}
+                          <button 
+                            className="btn btn-secondary"
+                            style={{ marginTop: '8px' }}
+                            onClick={() => onAddExercise(program, session)}
+                          >
+                            + Exercice
+                          </button>
+                          <button 
+                            className="btn"
+                            style={{ marginTop: '8px' }}
+                            onClick={() => onStartWorkout(program, session)}
+                          >
+                            Démarrer cette séance
+                          </button>
+                          <button 
+                            className="btn btn-delete"
+                            style={{ marginTop: '8px' }}
+                            onClick={() => onDeleteSession(program.id, session.id)}
+                          >
+                            Supprimer la séance
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+
+                  <div className="card-actions">
+                    <button 
+                      className="btn btn-secondary"
+                      onClick={() => onAddSession(program)}
+                    >
+                      + Séance
+                    </button>
+                    <button 
+                      className="btn btn-delete"
+                      onClick={() => onDeleteProgram(program.id)}
+                    >
+                      Supprimer
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          ))}
+
+          <button className="btn" style={{ marginTop: '20px' }} onClick={onAddProgram}>
+            + Nouveau Programme
+          </button>
+        </div>
+      );
+    }
+
+    function WorkoutView({ workout, onUpdateWorkout, onEndWorkout }) {
+      const [currentExerciseIndex, setCurrentExerciseIndex] = useState(0);
+      const [restTimer, setRestTimer] = useState(null);
+      const [restRemaining, setRestRemaining] = useState(0);
+      const timerRef = useRef(null);
+
+      useEffect(() => {
+        if (restTimer !== null) {
+          const startTime = Date.now();
+          const endTime = startTime + restTimer * 1000;
+
+          timerRef.current = setInterval(() => {
+            const remaining = Math.max(0, Math.ceil((endTime - Date.now()) / 1000));
+            setRestRemaining(remaining);
+
+            if (remaining === 0) {
+              clearInterval(timerRef.current);
+              setRestTimer(null);
+              // Vibration if available
+              if (navigator.vibrate) {
+                navigator.vibrate([200, 100, 200]);
+              }
+            }
+          }, 100);
+
+          return () => clearInterval(timerRef.current);
+        }
+      }, [restTimer]);
+
+      if (!workout) {
+        return (
+          <div className="view active">
+            <div className="empty-state">
+              <div className="empty-icon">🏋️</div>
+              <div className="empty-text">Sélectionne une séance pour commencer</div>
+            </div>
+          </div>
+        );
+      }
+
+      const currentExercise = workout.exercises[currentExerciseIndex];
+
+      const updateSet = (setIndex, field, value) => {
+        const updated = { ...workout };
+        updated.exercises[currentExerciseIndex].sets[setIndex][field] = value;
+        onUpdateWorkout(updated);
+      };
+
+      const completeSet = (setIndex) => {
+        const updated = { ...workout };
+        const set = updated.exercises[currentExerciseIndex].sets[setIndex];
+        set.completed = !set.completed;
+        
+        if (set.completed && currentExercise.restTime) {
+          setRestTimer(currentExercise.restTime);
+        }
+        
+        onUpdateWorkout(updated);
+      };
+
+      const skipRestTimer = () => {
+        clearInterval(timerRef.current);
+        setRestTimer(null);
+        setRestRemaining(0);
+      };
+
+      return (
+        <div className="view active">
+          <div style={{ marginBottom: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div>
+              <div style={{ fontSize: '12px', color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '1px' }}>
+                {workout.program.name} → {workout.session.name}
+              </div>
+              <div style={{ fontSize: '20px', fontWeight: 'bold', marginTop: '4px', fontFamily: 'Antonio' }}>
+                Exercice {currentExerciseIndex + 1}/{workout.exercises.length}
+              </div>
+            </div>
+            <button className="btn-small btn-delete" onClick={onEndWorkout}>
+              Terminer
+            </button>
+          </div>
+
+          {restTimer !== null && (
+            <div className="rest-timer">
+              <div className="rest-timer-bg" style={{ width: `${(restRemaining / restTimer) * 100}%` }}></div>
+              <div className="rest-timer-content">
+                <div className="rest-timer-label">Temps de repos</div>
+                <div className="rest-timer-time">{restRemaining}s</div>
+                <button className="btn-small btn-secondary" style={{ marginTop: '12px' }} onClick={skipRestTimer}>
+                  Passer
+                </button>
+              </div>
+            </div>
+          )}
+
+          <div className="tracker-exercise current">
+            <div className="tracker-header">
+              <div className="tracker-title">{currentExercise.name}</div>
+            </div>
+
+            {currentExercise.sets.map((set, idx) => (
+              <div key={idx} className="set-row">
+                <div className="set-label">S{idx + 1}</div>
+                <input
+                  type="number"
+                  className="set-input"
+                  placeholder="Reps"
+                  value={set.reps}
+                  onChange={(e) => updateSet(idx, 'reps', e.target.value)}
+                  disabled={set.completed}
+                />
+                <input
+                  type="number"
+                  className="set-input"
+                  placeholder="Poids"
+                  value={set.weight}
+                  onChange={(e) => updateSet(idx, 'weight', e.target.value)}
+                  disabled={set.completed}
+                />
+                <button
+                  className={`set-done ${set.completed ? 'completed' : ''}`}
+                  onClick={() => completeSet(idx)}
+                >
+                  {set.completed ? '✓' : 'Fait'}
+                </button>
+              </div>
+            ))}
+
+            <div style={{ display: 'flex', gap: '8px', marginTop: '16px' }}>
+              {currentExerciseIndex > 0 && (
+                <button 
+                  className="btn btn-secondary"
+                  onClick={() => setCurrentExerciseIndex(currentExerciseIndex - 1)}
+                >
+                  ← Précédent
+                </button>
+              )}
+              {currentExerciseIndex < workout.exercises.length - 1 && (
+                <button 
+                  className="btn"
+                  onClick={() => setCurrentExerciseIndex(currentExerciseIndex + 1)}
+                >
+                  Suivant →
+                </button>
+              )}
+            </div>
+          </div>
+
+          {/* Other exercises preview */}
+          <div style={{ marginTop: '24px' }}>
+            <div style={{ fontSize: '12px', color: 'var(--text-secondary)', textTransform: 'uppercase', marginBottom: '8px', letterSpacing: '1px' }}>
+              Exercices suivants
+            </div>
+            {workout.exercises.map((ex, idx) => (
+              idx !== currentExerciseIndex && (
+                <div 
+                  key={idx}
+                  className="exercise-item"
+                  onClick={() => setCurrentExerciseIndex(idx)}
+                  style={{ cursor: 'pointer', opacity: idx < currentExerciseIndex ? 0.5 : 1 }}
+                >
+                  <div className="exercise-name">
+                    {idx < currentExerciseIndex ? '✓ ' : ''}{ex.name}
+                  </div>
+                  <div className="exercise-rest">
+                    {ex.sets.filter(s => s.completed).length}/{ex.sets.length} séries
+                  </div>
+                </div>
+              )
+            ))}
+          </div>
+        </div>
+      );
+    }
+
+    function Modal({ type, program, session, onClose, onAddProgram, onAddSession, onAddExercise }) {
+      const [formData, setFormData] = useState({
+        name: '',
+        sets: '3',
+        restTime: '90'
+      });
+
+      const handleSubmit = (e) => {
+        e.preventDefault();
+        
+        if (type === 'program') {
+          onAddProgram(formData.name);
+        } else if (type === 'session') {
+          onAddSession(program.id, formData.name);
+        } else if (type === 'exercise') {
+          onAddExercise(program.id, session.id, {
+            name: formData.name,
+            sets: parseInt(formData.sets),
+            restTime: parseInt(formData.restTime)
+          });
+        }
+      };
+
+      return (
+        <div className="modal active" onClick={onClose}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h2 className="modal-title">
+                {type === 'program' && 'Nouveau Programme'}
+                {type === 'session' && 'Nouvelle Séance'}
+                {type === 'exercise' && 'Nouvel Exercice'}
+              </h2>
+              <button className="modal-close" onClick={onClose}>✕</button>
+            </div>
+
+            <form onSubmit={handleSubmit}>
+              <div className="form-group">
+                <label className="form-label">Nom</label>
+                <input
+                  type="text"
+                  className="form-input"
+                  value={formData.name}
+                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  placeholder={
+                    type === 'program' ? 'Ex: PPL Split' :
+                    type === 'session' ? 'Ex: Push' :
+                    'Ex: Développé Couché'
+                  }
+                  required
+                  autoFocus
+                />
+              </div>
+
+              {type === 'exercise' && (
+                <>
+                  <div className="form-group">
+                    <label className="form-label">Nombre de séries</label>
+                    <input
+                      type="number"
+                      className="form-input"
+                      value={formData.sets}
+                      onChange={(e) => setFormData({ ...formData, sets: e.target.value })}
+                      min="1"
+                      max="20"
+                      required
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label className="form-label">Temps de repos (secondes)</label>
+                    <input
+                      type="number"
+                      className="form-input"
+                      value={formData.restTime}
+                      onChange={(e) => setFormData({ ...formData, restTime: e.target.value })}
+                      min="0"
+                      max="600"
+                      required
+                    />
+                  </div>
+                </>
+              )}
+
+              <button type="submit" className="btn">
+                Créer
+              </button>
+            </form>
+          </div>
+        </div>
+      );
+    }
+
+    // Render app
+    ReactDOM.render(<App />, document.getElementById('root'));
+
+    // Register service worker for PWA
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('data:text/javascript;base64,c2VsZi5hZGRFdmVudExpc3RlbmVyKCdpbnN0YWxsJywgKCkgPT4gc2VsZi5za2lwV2FpdGluZygpKTs=')
+          .catch(() => {});
+      });
+    }
+  </script>
+</body>
+</html>
