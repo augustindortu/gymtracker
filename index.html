@@ -280,7 +280,7 @@
       margin-top: 8px;
     }
     
-    /* Workout tracker */
+    /* Workout tracker with Option B steppers */
     .tracker-exercise {
       background: var(--bg-secondary);
       border: 2px solid var(--border);
@@ -310,45 +310,117 @@
       color: var(--text-primary);
     }
     
-    .last-performance {
+    .past-performance {
       background: var(--bg-tertiary);
       border: 2px dashed var(--border);
-      padding: 12px;
+      padding: 14px;
       margin-bottom: 16px;
       border-radius: 12px;
     }
     
-    .last-performance-title {
+    .past-performance-title {
       font-size: 12px;
-      font-weight: 600;
+      font-weight: 700;
       color: var(--text-secondary);
-      margin-bottom: 8px;
+      margin-bottom: 10px;
       text-transform: uppercase;
       letter-spacing: 0.5px;
     }
     
-    .last-performance-data {
+    .past-performance-row {
       font-size: 13px;
       color: var(--text-primary);
       font-weight: 500;
+      margin-bottom: 4px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
     }
     
+    .pr-badge {
+      background: linear-gradient(135deg, #FFD700 0%, #FFC700 100%);
+      color: #2D2D2D;
+      padding: 2px 8px;
+      border-radius: 10px;
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+    }
+    
+    /* Option B - Set row with steppers */
     .set-row {
       display: grid;
-      grid-template-columns: 50px 1fr 1fr 80px;
-      gap: 8px;
-      margin-bottom: 10px;
+      grid-template-columns: 50px 1fr 80px;
+      gap: 10px;
+      margin-bottom: 12px;
       align-items: center;
     }
     
     .set-label {
-      font-size: 12px;
+      font-size: 13px;
       font-weight: 700;
       color: var(--text-secondary);
     }
     
+    .set-inputs {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    
+    .input-with-label {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    
+    .input-label {
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    
+    .input-with-steppers {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    
+    .stepper-btn {
+      width: 32px;
+      height: 32px;
+      background: var(--bg-secondary);
+      border: 2px solid var(--border);
+      color: var(--accent);
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      border-radius: 8px;
+      font-family: 'Poppins', sans-serif;
+      flex-shrink: 0;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .stepper-btn.double {
+      font-size: 11px;
+    }
+    
+    .stepper-btn:active {
+      background: var(--accent);
+      color: white;
+      transform: scale(0.95);
+    }
+    
     .set-input {
-      padding: 12px;
+      padding: 10px;
       background: var(--bg-tertiary);
       border: 2px solid var(--border);
       color: var(--text-primary);
@@ -357,6 +429,7 @@
       text-align: center;
       font-weight: 700;
       border-radius: 10px;
+      flex: 1;
       transition: all 0.2s;
     }
     
@@ -364,6 +437,11 @@
       outline: none;
       border-color: var(--accent);
       box-shadow: 0 0 0 3px var(--shadow);
+    }
+    
+    .set-input:disabled {
+      opacity: 0.6;
+      background: var(--bg-secondary);
     }
     
     .set-done {
@@ -473,13 +551,55 @@
       padding: 18px;
       margin-bottom: 14px;
       border-radius: 14px;
-      cursor: pointer;
       transition: all 0.2s;
     }
     
-    .history-card:active {
-      transform: scale(0.99);
-      box-shadow: 0 4px 15px var(--shadow);
+    .history-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 8px;
+    }
+    
+    .history-card-content {
+      flex: 1;
+      cursor: pointer;
+    }
+    
+    .history-card-actions {
+      display: flex;
+      gap: 6px;
+      flex-shrink: 0;
+      margin-left: 8px;
+    }
+    
+    .icon-btn {
+      width: 32px;
+      height: 32px;
+      background: var(--bg-tertiary);
+      border: 2px solid var(--border);
+      color: var(--text-secondary);
+      font-size: 14px;
+      cursor: pointer;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+    }
+    
+    .icon-btn:active {
+      transform: scale(0.95);
+    }
+    
+    .icon-btn.delete {
+      color: #FF3B30;
+      border-color: #FF3B30;
+    }
+    
+    .icon-btn.delete:active {
+      background: #FF3B30;
+      color: white;
     }
     
     .history-date {
@@ -523,9 +643,15 @@
       font-size: 13px;
     }
     
+    .exercise-detail-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 6px;
+    }
+    
     .exercise-detail-title {
       font-weight: 700;
-      margin-bottom: 6px;
       color: var(--text-primary);
     }
     
@@ -764,6 +890,7 @@
       const [currentProgram, setCurrentProgram] = useState(null);
       const [currentSession, setCurrentSession] = useState(null);
       const [currentExercise, setCurrentExercise] = useState(null);
+      const [currentWorkout, setCurrentWorkout] = useState(null);
       const [activeWorkout, setActiveWorkout] = useState(null);
 
       // Load data on mount
@@ -783,11 +910,12 @@
         storage.set('workout_history', workoutHistory);
       }, [workoutHistory]);
 
-      const openModal = (type, program = null, session = null, exercise = null) => {
+      const openModal = (type, program = null, session = null, exercise = null, workout = null) => {
         setModalType(type);
         setCurrentProgram(program);
         setCurrentSession(session);
         setCurrentExercise(exercise);
+        setCurrentWorkout(workout);
         setShowModal(true);
       };
 
@@ -797,6 +925,7 @@
         setCurrentProgram(null);
         setCurrentSession(null);
         setCurrentExercise(null);
+        setCurrentWorkout(null);
       };
 
       const addProgram = (name) => {
@@ -936,6 +1065,38 @@
         setView('programs');
       };
 
+      const deleteWorkout = (workoutId) => {
+        if (confirm('Supprimer cette séance de l\'historique ?')) {
+          setWorkoutHistory(workoutHistory.filter(w => w.id !== workoutId));
+        }
+      };
+
+      const deleteHistoryExercise = (workoutId, exerciseId) => {
+        if (confirm('Supprimer cet exercice de l\'historique ?')) {
+          setWorkoutHistory(workoutHistory.map(w =>
+            w.id === workoutId
+              ? { ...w, exercises: w.exercises.filter(e => e.id !== exerciseId) }
+              : w
+          ));
+        }
+      };
+
+      const editHistoryExercise = (workoutId, exerciseId, updatedSets) => {
+        setWorkoutHistory(workoutHistory.map(w =>
+          w.id === workoutId
+            ? {
+                ...w,
+                exercises: w.exercises.map(e =>
+                  e.id === exerciseId
+                    ? { ...e, sets: updatedSets }
+                    : e
+                )
+              }
+            : w
+        ));
+        closeModal();
+      };
+
       return (
         <div className="app">
           <header className="header">
@@ -991,6 +1152,9 @@
               <HistoryView 
                 history={workoutHistory}
                 programs={programs}
+                onDeleteWorkout={deleteWorkout}
+                onDeleteExercise={deleteHistoryExercise}
+                onEditExercise={(workout, exercise) => openModal('edit-history-exercise', null, null, exercise, workout)}
               />
             )}
           </div>
@@ -1001,11 +1165,13 @@
               program={currentProgram}
               session={currentSession}
               exercise={currentExercise}
+              workout={currentWorkout}
               onClose={closeModal}
               onAddProgram={addProgram}
               onAddSession={addSession}
               onAddExercise={addExercise}
               onEditExercise={editExercise}
+              onEditHistoryExercise={editHistoryExercise}
             />
           )}
         </div>
@@ -1197,23 +1363,72 @@
 
       const currentExercise = workout.exercises[currentExerciseIndex];
 
-      // Find last performance for this exercise
-      const getLastPerformance = (exerciseName) => {
+      // Find last performance and PR for this exercise
+      const getExercisePerformances = (exerciseName) => {
+        const performances = [];
+        let maxWeight = 0;
+        let maxReps = 0;
+        const prs = [];
+
         for (let i = 0; i < workoutHistory.length; i++) {
           const historyWorkout = workoutHistory[i];
           const exerciseData = historyWorkout.exercises.find(e => e.name === exerciseName);
           if (exerciseData) {
-            return exerciseData.sets.filter(s => s.completed);
+            const completedSets = exerciseData.sets.filter(s => s.completed);
+            if (completedSets.length > 0) {
+              if (performances.length === 0) {
+                // This is the last performance
+                performances.push({ type: 'last', sets: completedSets });
+              }
+              
+              // Check for PRs
+              completedSets.forEach((set, idx) => {
+                const weight = parseFloat(set.weight) || 0;
+                const reps = parseInt(set.reps) || 0;
+                
+                if (!prs[idx] || weight > (parseFloat(prs[idx].weight) || 0) || 
+                    (weight === parseFloat(prs[idx].weight) && reps > (parseInt(prs[idx].reps) || 0))) {
+                  prs[idx] = set;
+                  if (weight > maxWeight || (weight === maxWeight && reps > maxReps)) {
+                    maxWeight = weight;
+                    maxReps = reps;
+                  }
+                }
+              });
+            }
           }
         }
-        return null;
+
+        return { last: performances[0]?.sets || null, prs };
       };
 
-      const lastPerformance = getLastPerformance(currentExercise.name);
+      const { last: lastPerformance, prs: prSets } = getExercisePerformances(currentExercise.name);
+
+      // Auto-fill from last performance on mount
+      useEffect(() => {
+        if (lastPerformance && currentExercise.sets.every(s => !s.reps && !s.weight)) {
+          const updated = { ...workout };
+          lastPerformance.forEach((lastSet, idx) => {
+            if (updated.exercises[currentExerciseIndex].sets[idx]) {
+              updated.exercises[currentExerciseIndex].sets[idx].reps = lastSet.reps;
+              updated.exercises[currentExerciseIndex].sets[idx].weight = lastSet.weight;
+            }
+          });
+          onUpdateWorkout(updated);
+        }
+      }, [currentExerciseIndex]);
 
       const updateSet = (setIndex, field, value) => {
         const updated = { ...workout };
         updated.exercises[currentExerciseIndex].sets[setIndex][field] = value;
+        onUpdateWorkout(updated);
+      };
+
+      const adjustWeight = (setIndex, delta) => {
+        const updated = { ...workout };
+        const currentValue = parseFloat(updated.exercises[currentExerciseIndex].sets[setIndex].weight) || 0;
+        const newValue = Math.max(0, currentValue + delta);
+        updated.exercises[currentExerciseIndex].sets[setIndex].weight = newValue.toString();
         onUpdateWorkout(updated);
       };
 
@@ -1225,17 +1440,21 @@
         if (set.completed && currentExercise.restTime) {
           setRestTimer(currentExercise.restTime);
           
-          // Check if improved
-          if (lastPerformance && lastPerformance[setIndex]) {
-            const lastSet = lastPerformance[setIndex];
-            const improvement = 
-              (parseInt(set.weight) > parseInt(lastSet.weight)) ||
-              (parseInt(set.weight) === parseInt(lastSet.weight) && parseInt(set.reps) > parseInt(lastSet.reps));
+          // Check if PR
+          const prSet = prSets[setIndex];
+          if (prSet) {
+            const isPR = parseFloat(set.weight) > parseFloat(prSet.weight) ||
+                        (parseFloat(set.weight) === parseFloat(prSet.weight) && 
+                         parseInt(set.reps) > parseInt(prSet.reps));
             
-            if (improvement) {
+            if (isPR) {
               setShowSuccess(true);
               setTimeout(() => setShowSuccess(false), 3000);
             }
+          } else if (set.reps && set.weight) {
+            // First time doing this exercise
+            setShowSuccess(true);
+            setTimeout(() => setShowSuccess(false), 3000);
           }
         }
         
@@ -1256,7 +1475,7 @@
         
         if (!currentSet.completed || !currentSet.reps || !currentSet.weight) return null;
         
-        const weightDiff = parseInt(currentSet.weight) - parseInt(lastSet.weight);
+        const weightDiff = parseFloat(currentSet.weight) - parseFloat(lastSet.weight);
         const repsDiff = parseInt(currentSet.reps) - parseInt(lastSet.reps);
         
         if (weightDiff > 0) {
@@ -1293,7 +1512,7 @@
 
           {showSuccess && (
             <div className="success-message">
-              🎉 Super ! Tu as progressé sur cette série !
+              🎉 Nouveau record personnel !
             </div>
           )}
 
@@ -1329,48 +1548,107 @@
               </div>
             )}
 
-            {lastPerformance && (
-              <div className="last-performance">
-                <div className="last-performance-title">Dernière performance</div>
-                <div className="last-performance-data">
-                  {lastPerformance.map((set, idx) => (
-                    <div key={idx}>
-                      S{idx + 1}: {set.reps} reps × {set.weight}kg
+            {(lastPerformance || prSets.length > 0) && (
+              <div className="past-performance">
+                <div className="past-performance-title">Performances Passées</div>
+                {currentExercise.sets.map((_, idx) => {
+                  const lastSet = lastPerformance?.[idx];
+                  const prSet = prSets[idx];
+                  const isPR = lastSet && prSet && 
+                               parseFloat(lastSet.weight) === parseFloat(prSet.weight) &&
+                               parseInt(lastSet.reps) === parseInt(prSet.reps);
+                  
+                  if (!lastSet && !prSet) return null;
+                  
+                  return (
+                    <div key={idx} className="past-performance-row">
+                      <span>
+                        S{idx + 1}: {lastSet ? `${lastSet.reps} × ${lastSet.weight}kg` : '-'}
+                      </span>
+                      {isPR ? (
+                        <span className="pr-badge">🏆 PR</span>
+                      ) : prSet && lastSet && (parseFloat(prSet.weight) !== parseFloat(lastSet.weight) || parseInt(prSet.reps) !== parseInt(lastSet.reps)) ? (
+                        <span style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>
+                          Record: {prSet.reps} × {prSet.weight}kg
+                        </span>
+                      ) : null}
                     </div>
-                  ))}
-                </div>
+                  );
+                })}
               </div>
             )}
 
             {currentExercise.sets.map((set, idx) => {
               const comparison = getComparison(idx);
               return (
-                <div key={idx} className="set-row">
-                  <div className="set-label">S{idx + 1}</div>
-                  <input
-                    type="number"
-                    className="set-input"
-                    placeholder="Reps"
-                    value={set.reps}
-                    onChange={(e) => updateSet(idx, 'reps', e.target.value)}
-                    disabled={set.completed}
-                  />
-                  <input
-                    type="number"
-                    className="set-input"
-                    placeholder="Poids"
-                    value={set.weight}
-                    onChange={(e) => updateSet(idx, 'weight', e.target.value)}
-                    disabled={set.completed}
-                  />
-                  <button
-                    className={`set-done ${set.completed ? 'completed' : ''}`}
-                    onClick={() => completeSet(idx)}
-                  >
-                    {set.completed ? '✓' : 'Fait'}
-                  </button>
+                <div key={idx}>
+                  <div className="set-row">
+                    <div className="set-label">S{idx + 1}</div>
+                    <div className="set-inputs">
+                      <div className="input-with-label">
+                        <div className="input-label">Reps</div>
+                        <input
+                          type="number"
+                          inputMode="numeric"
+                          className="set-input"
+                          placeholder="0"
+                          value={set.reps}
+                          onChange={(e) => updateSet(idx, 'reps', e.target.value)}
+                          disabled={set.completed}
+                        />
+                      </div>
+                      <div className="input-with-label">
+                        <div className="input-label">Poids (kg)</div>
+                        <div className="input-with-steppers">
+                          <button 
+                            className="stepper-btn double" 
+                            onClick={() => adjustWeight(idx, -5)}
+                            disabled={set.completed}
+                          >
+                            --
+                          </button>
+                          <button 
+                            className="stepper-btn" 
+                            onClick={() => adjustWeight(idx, -2.5)}
+                            disabled={set.completed}
+                          >
+                            -
+                          </button>
+                          <input
+                            type="number"
+                            inputMode="decimal"
+                            className="set-input"
+                            placeholder="0"
+                            value={set.weight}
+                            onChange={(e) => updateSet(idx, 'weight', e.target.value)}
+                            disabled={set.completed}
+                          />
+                          <button 
+                            className="stepper-btn" 
+                            onClick={() => adjustWeight(idx, 2.5)}
+                            disabled={set.completed}
+                          >
+                            +
+                          </button>
+                          <button 
+                            className="stepper-btn double" 
+                            onClick={() => adjustWeight(idx, 5)}
+                            disabled={set.completed}
+                          >
+                            ++
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                    <button
+                      className={`set-done ${set.completed ? 'completed' : ''}`}
+                      onClick={() => completeSet(idx)}
+                    >
+                      {set.completed ? '✓' : 'Fait'}
+                    </button>
+                  </div>
                   {comparison && (
-                    <div style={{ gridColumn: '2 / 5', fontSize: '12px', textAlign: 'center' }}>
+                    <div style={{ marginBottom: '12px', fontSize: '12px', textAlign: 'center' }}>
                       <span className={`comparison-badge ${comparison.positive ? '' : 'negative'}`}>
                         {comparison.text}
                       </span>
@@ -1426,13 +1704,12 @@
       );
     }
 
-    function HistoryView({ history, programs }) {
+    function HistoryView({ history, programs, onDeleteWorkout, onDeleteExercise, onEditExercise }) {
       const [filter, setFilter] = useState('all');
       const [expandedWorkout, setExpandedWorkout] = useState(null);
-      const [viewMode, setViewMode] = useState('sessions'); // 'sessions' or 'exercises'
+      const [viewMode, setViewMode] = useState('sessions');
       const [selectedExercise, setSelectedExercise] = useState(null);
 
-      // Get all unique exercises
       const getAllExercises = () => {
         const exercises = new Set();
         history.forEach(workout => {
@@ -1445,12 +1722,10 @@
 
       const allExercises = getAllExercises();
 
-      // Filter history
       const filteredHistory = filter === 'all' 
         ? history 
         : history.filter(w => w.programId === filter);
 
-      // Get exercise history
       const getExerciseHistory = (exerciseName) => {
         return history
           .map(workout => ({
@@ -1464,7 +1739,6 @@
           }));
       };
 
-      // Get PR for exercise
       const getPersonalRecord = (exerciseName) => {
         const exerciseHistory = getExerciseHistory(exerciseName);
         let maxWeight = 0;
@@ -1472,7 +1746,7 @@
         
         exerciseHistory.forEach(({ sets }) => {
           sets.forEach(set => {
-            const weight = parseInt(set.weight) || 0;
+            const weight = parseFloat(set.weight) || 0;
             const reps = parseInt(set.reps) || 0;
             if (weight > maxWeight || (weight === maxWeight && reps > maxReps)) {
               maxWeight = weight;
@@ -1534,12 +1808,29 @@
 
               {filteredHistory.map(workout => (
                 <div key={workout.id} className="history-card">
-                  <div onClick={() => setExpandedWorkout(expandedWorkout === workout.id ? null : workout.id)}>
-                    <div className="history-date">{formatDate(workout.completedAt)}</div>
-                    <div className="history-title">{workout.sessionName}</div>
-                    <div className="history-stats">
-                      <div className="stat-badge">⏱️ {workout.duration} min</div>
-                      <div className="stat-badge">💪 {workout.exercises.length} exercices</div>
+                  <div className="history-card-header">
+                    <div 
+                      className="history-card-content"
+                      onClick={() => setExpandedWorkout(expandedWorkout === workout.id ? null : workout.id)}
+                    >
+                      <div className="history-date">{formatDate(workout.completedAt)}</div>
+                      <div className="history-title">{workout.sessionName}</div>
+                      <div className="history-stats">
+                        <div className="stat-badge">⏱️ {workout.duration} min</div>
+                        <div className="stat-badge">💪 {workout.exercises.length} exercices</div>
+                      </div>
+                    </div>
+                    <div className="history-card-actions">
+                      <button 
+                        className="icon-btn delete"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onDeleteWorkout(workout.id);
+                        }}
+                        title="Supprimer la séance"
+                      >
+                        🗑️
+                      </button>
                     </div>
                   </div>
 
@@ -1549,7 +1840,31 @@
                         const completedSets = exercise.sets.filter(s => s.completed);
                         return (
                           <div key={idx} className="exercise-detail">
-                            <div className="exercise-detail-title">{exercise.name}</div>
+                            <div className="exercise-detail-header">
+                              <div className="exercise-detail-title">{exercise.name}</div>
+                              <div style={{ display: 'flex', gap: '6px' }}>
+                                <button 
+                                  className="icon-btn"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    onEditExercise(workout, exercise);
+                                  }}
+                                  title="Modifier"
+                                >
+                                  ✏️
+                                </button>
+                                <button 
+                                  className="icon-btn delete"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    onDeleteExercise(workout.id, exercise.id);
+                                  }}
+                                  title="Supprimer"
+                                >
+                                  🗑️
+                                </button>
+                              </div>
+                            </div>
                             <div className="exercise-detail-sets">
                               {completedSets.map((set, sidx) => (
                                 <div key={sidx}>
@@ -1611,13 +1926,21 @@
       );
     }
 
-    function Modal({ type, program, session, exercise, onClose, onAddProgram, onAddSession, onAddExercise, onEditExercise }) {
+    function Modal({ type, program, session, exercise, workout, onClose, onAddProgram, onAddSession, onAddExercise, onEditExercise, onEditHistoryExercise }) {
       const [formData, setFormData] = useState({
         name: exercise?.name || '',
         sets: exercise?.sets?.toString() || '3',
         restTime: exercise?.restTime?.toString() || '90',
         notes: exercise?.notes || ''
       });
+
+      const [historySets, setHistorySets] = useState(
+        exercise?.sets?.filter(s => s.completed).map((s, idx) => ({
+          index: idx,
+          reps: s.reps,
+          weight: s.weight
+        })) || []
+      );
 
       const handleSubmit = (e) => {
         e.preventDefault();
@@ -1640,7 +1963,22 @@
             restTime: parseInt(formData.restTime),
             notes: formData.notes
           });
+        } else if (type === 'edit-history-exercise') {
+          const updatedSets = exercise.sets.map((set, idx) => {
+            const historySet = historySets.find(s => s.index === idx);
+            if (set.completed && historySet) {
+              return { ...set, reps: historySet.reps, weight: historySet.weight };
+            }
+            return set;
+          });
+          onEditHistoryExercise(workout.id, exercise.id, updatedSets);
         }
+      };
+
+      const updateHistorySet = (index, field, value) => {
+        setHistorySets(historySets.map(s => 
+          s.index === index ? { ...s, [field]: value } : s
+        ));
       };
 
       return (
@@ -1652,71 +1990,111 @@
                 {type === 'session' && 'Nouvelle Séance'}
                 {type === 'exercise' && 'Nouvel Exercice'}
                 {type === 'edit-exercise' && 'Modifier Exercice'}
+                {type === 'edit-history-exercise' && 'Modifier Performance'}
               </h2>
               <button className="modal-close" onClick={onClose}>✕</button>
             </div>
 
             <form onSubmit={handleSubmit}>
-              <div className="form-group">
-                <label className="form-label">Nom</label>
-                <input
-                  type="text"
-                  className="form-input"
-                  value={formData.name}
-                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  placeholder={
-                    type === 'program' ? 'Ex: PPL Split' :
-                    type === 'session' ? 'Ex: Push' :
-                    'Ex: Développé Couché'
-                  }
-                  required
-                  autoFocus
-                />
-              </div>
-
-              {(type === 'exercise' || type === 'edit-exercise') && (
+              {type === 'edit-history-exercise' ? (
+                <>
+                  <div style={{ marginBottom: '16px', fontSize: '15px', fontWeight: '600' }}>
+                    {exercise.name}
+                  </div>
+                  {historySets.map((set) => (
+                    <div key={set.index} style={{ marginBottom: '12px' }}>
+                      <div style={{ fontSize: '13px', fontWeight: '600', marginBottom: '6px' }}>
+                        Série {set.index + 1}
+                      </div>
+                      <div style={{ display: 'flex', gap: '8px' }}>
+                        <div style={{ flex: 1 }}>
+                          <label className="form-label">Reps</label>
+                          <input
+                            type="number"
+                            className="form-input"
+                            value={set.reps}
+                            onChange={(e) => updateHistorySet(set.index, 'reps', e.target.value)}
+                            required
+                          />
+                        </div>
+                        <div style={{ flex: 1 }}>
+                          <label className="form-label">Poids (kg)</label>
+                          <input
+                            type="number"
+                            className="form-input"
+                            value={set.weight}
+                            onChange={(e) => updateHistorySet(set.index, 'weight', e.target.value)}
+                            required
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </>
+              ) : (
                 <>
                   <div className="form-group">
-                    <label className="form-label">Nombre de séries</label>
+                    <label className="form-label">Nom</label>
                     <input
-                      type="number"
+                      type="text"
                       className="form-input"
-                      value={formData.sets}
-                      onChange={(e) => setFormData({ ...formData, sets: e.target.value })}
-                      min="1"
-                      max="20"
+                      value={formData.name}
+                      onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                      placeholder={
+                        type === 'program' ? 'Ex: PPL Split' :
+                        type === 'session' ? 'Ex: Push' :
+                        'Ex: Développé Couché'
+                      }
                       required
+                      autoFocus
                     />
                   </div>
 
-                  <div className="form-group">
-                    <label className="form-label">Temps de repos (secondes)</label>
-                    <input
-                      type="number"
-                      className="form-input"
-                      value={formData.restTime}
-                      onChange={(e) => setFormData({ ...formData, restTime: e.target.value })}
-                      min="0"
-                      max="600"
-                      required
-                    />
-                  </div>
+                  {(type === 'exercise' || type === 'edit-exercise') && (
+                    <>
+                      <div className="form-group">
+                        <label className="form-label">Nombre de séries</label>
+                        <input
+                          type="number"
+                          className="form-input"
+                          value={formData.sets}
+                          onChange={(e) => setFormData({ ...formData, sets: e.target.value })}
+                          min="1"
+                          max="20"
+                          required
+                        />
+                      </div>
 
-                  <div className="form-group">
-                    <label className="form-label">Notes (optionnel)</label>
-                    <textarea
-                      className="form-input"
-                      value={formData.notes}
-                      onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-                      placeholder="Ex: Utiliser la prise large"
-                      rows="3"
-                    />
-                  </div>
+                      <div className="form-group">
+                        <label className="form-label">Temps de repos (secondes)</label>
+                        <input
+                          type="number"
+                          className="form-input"
+                          value={formData.restTime}
+                          onChange={(e) => setFormData({ ...formData, restTime: e.target.value })}
+                          min="0"
+                          max="600"
+                          required
+                        />
+                      </div>
+
+                      <div className="form-group">
+                        <label className="form-label">Notes (optionnel)</label>
+                        <textarea
+                          className="form-input"
+                          value={formData.notes}
+                          onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
+                          placeholder="Ex: Utiliser la prise large"
+                          rows="3"
+                        />
+                      </div>
+                    </>
+                  )}
                 </>
               )}
 
               <button type="submit" className="btn">
-                {type === 'edit-exercise' ? 'Sauvegarder' : 'Créer'}
+                {type === 'edit-exercise' || type === 'edit-history-exercise' ? 'Sauvegarder' : 'Créer'}
               </button>
             </form>
           </div>
@@ -1724,10 +2102,8 @@
       );
     }
 
-    // Render app
     ReactDOM.render(<App />, document.getElementById('root'));
 
-    // Register service worker for PWA
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
         navigator.serviceWorker.register('data:text/javascript;base64,c2VsZi5hZGRFdmVudExpc3RlbmVyKCdpbnN0YWxsJywgKCkgPT4gc2VsZi5za2lwV2FpdGluZygpKTs=')
