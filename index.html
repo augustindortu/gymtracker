@@ -2365,11 +2365,13 @@
       });
 
       const [historySets, setHistorySets] = useState(
-        exercise?.sets?.filter(s => s.completed).map((s, idx) => ({
-          index: idx,
-          reps: s.reps,
-          weight: s.weight
-        })) || []
+        Array.isArray(exercise?.sets) 
+          ? exercise.sets.filter(s => s.completed).map((s, idx) => ({
+              index: idx,
+              reps: s.reps,
+              weight: s.weight
+            }))
+          : []
       );
 
       const handleSubmit = (e) => {
