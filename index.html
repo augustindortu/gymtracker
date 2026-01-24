@@ -1499,7 +1499,15 @@
     function App() {
       const [user, setUser] = useState(null);
       const [loading, setLoading] = useState(true);
-      const [view, setView] = useState('programs');
+      const [view, setView] = useState(() => {
+        // Si un entraînement est en cours, afficher la vue workout
+        try {
+          const saved = localStorage.getItem('gymtracker_active_workout');
+          return saved ? 'workout' : 'programs';
+        } catch (e) {
+          return 'programs';
+        }
+      });
       const [programs, setPrograms] = useState([]);
       const [workoutHistory, setWorkoutHistory] = useState([]);
       const [showModal, setShowModal] = useState(false);
@@ -1508,7 +1516,24 @@
       const [currentSession, setCurrentSession] = useState(null);
       const [currentExercise, setCurrentExercise] = useState(null);
       const [currentWorkout, setCurrentWorkout] = useState(null);
-      const [activeWorkout, setActiveWorkout] = useState(null);
+      const [activeWorkout, setActiveWorkout] = useState(() => {
+        // Charger l'entraînement en cours depuis localStorage au démarrage
+        try {
+          const saved = localStorage.getItem('gymtracker_active_workout');
+          return saved ? JSON.parse(saved) : null;
+        } catch (e) {
+          return null;
+        }
+      });
+
+      // Sauvegarder l'entraînement en cours dans localStorage à chaque modification
+      useEffect(() => {
+        if (activeWorkout) {
+          localStorage.setItem('gymtracker_active_workout', JSON.stringify(activeWorkout));
+        } else {
+          localStorage.removeItem('gymtracker_active_workout');
+        }
+      }, [activeWorkout]);
 
       // Check auth on mount
       useEffect(() => {
