@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>GymTracker</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <link rel="manifest" href="data:application/json;base64,eyJuYW1lIjoiR3ltVHJhY2tlciIsInNob3J0X25hbWUiOiJHeW1UcmFja2VyIiwic3RhcnRfdXJsIjoiLiIsImRpc3BsYXkiOiJzdGFuZGFsb25lIiwiYmFja2dyb3VuZF9jb2xvciI6IiNGRkY1RjAiLCJ0aGVtZV9jb2xvciI6IiNGRjZCNkIiLCJpY29ucyI6W3sic3JjIjoiZGF0YTppbWFnZS9zdmcreG1sLCUzQ3N2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCAxMDAgMTAwJyUzRSUzQ3JlY3Qgd2lkdGg9JzEwMCcgaGVpZ2h0PScxMDAnIGZpbGw9JyUyM0ZGNkI2QicvJTNFJTNDdGV4dCB4PScyNSUyNScgeT0nNjUlMjUnIGZvbnQtc2l6ZT0nNjAnIGZpbGw9J3doaXRlJyBmb250LWZhbWlseT0nQXJpYWwlMkNzYW5zLXNlcmlmJyUzRUclM0MvdGV4dCUzRSUzQy9zdmclM0UiLCJzaXplcyI6IjE5MngxOTIiLCJ0eXBlIjoiaW1hZ2Uvc3ZnK3htbCJ9XX0=">
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&family=DM+Sans:wght@400;500;700&display=swap');
@@ -824,206 +825,105 @@
     }
     
     .comparison-badge.negative {
-      background: #FF8E8E;
-    }
-
-    /* Session buttons */
-    .session-buttons {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-      margin-top: 8px;
-    }
-
-    /* Workout navigation buttons */
-    .workout-nav {
-      display: flex;
-      gap: 8px;
-      margin-top: 16px;
-      flex-wrap: wrap;
-    }
-
-    .workout-nav .btn {
-      flex: 1;
-      min-width: 120px;
-    }
-
-    /* Responsive fixes */
-    @media (max-width: 480px) {
-      .app {
-        max-width: 100%;
-        overflow-x: hidden;
-      }
-
-      .content {
-        padding: 16px;
-      }
-
-      .set-row {
-        grid-template-columns: 40px 1fr 60px;
-        gap: 6px;
-      }
-
-      .stepper-btn {
-        width: 28px;
-        height: 28px;
-        font-size: 12px;
-      }
-
-      .stepper-btn.double {
-        font-size: 10px;
-      }
-
-      .set-input {
-        padding: 8px 4px;
-        font-size: 14px;
-        min-width: 0;
-      }
-
-      .set-done {
-        padding: 8px 4px;
-        font-size: 10px;
-      }
-
-      .input-with-steppers {
-        gap: 2px;
-      }
-
-      .card-actions {
-        flex-wrap: wrap;
-      }
-
-      .card-actions .btn {
-        flex: 1 1 calc(50% - 4px);
-        min-width: 0;
-        font-size: 13px;
-        padding: 12px 8px;
-      }
-
-      .exercise-actions {
-        flex-wrap: wrap;
-      }
-
-      .exercise-actions .btn-small {
-        flex: 1 1 calc(50% - 3px);
-        min-width: 0;
-        font-size: 11px;
-        padding: 6px 8px;
-        text-align: center;
-      }
-
-      .btn {
-        font-size: 14px;
-        padding: 14px 12px;
-      }
-
-      .btn-small {
-        font-size: 11px;
-        padding: 6px 12px;
-      }
-
-      .tracker-header {
-        flex-wrap: wrap;
-        gap: 8px;
-      }
-
-      .tracker-title {
-        font-size: 18px;
-      }
-
-      .history-card-header {
-        flex-wrap: wrap;
-      }
-
-      .history-stats {
-        gap: 8px;
-      }
-
-      .stat-badge {
-        font-size: 11px;
-        padding: 4px 8px;
-      }
-
-      .modal-content {
-        padding: 20px;
-        margin-top: 10px;
-      }
-
-      .modal-title {
-        font-size: 20px;
-      }
-
-      .rest-timer-time {
-        font-size: 48px;
-      }
-
-      .header h1 {
-        font-size: 26px;
-      }
-
-      .nav-btn {
-        padding: 10px 14px;
-        font-size: 12px;
-      }
-
-      .session-buttons .btn {
-        font-size: 13px;
-        padding: 12px;
-      }
-
-      .workout-nav .btn {
-        min-width: 100px;
-        font-size: 13px;
-      }
-    }
-
-    @media (max-width: 360px) {
-      .set-row {
-        grid-template-columns: 35px 1fr 50px;
-        gap: 4px;
-      }
-
-      .stepper-btn {
-        width: 24px;
-        height: 24px;
-        font-size: 11px;
-      }
-
-      .set-input {
-        padding: 6px 2px;
-        font-size: 13px;
-      }
-
-      .set-done {
-        padding: 6px 2px;
-        font-size: 9px;
-      }
-
-      .card-actions .btn {
-        font-size: 12px;
-        padding: 10px 6px;
-      }
-
-      .session-buttons .btn {
-        font-size: 12px;
-        padding: 10px;
-      }
-
-      .workout-nav .btn {
-        min-width: 80px;
-        font-size: 12px;
-        padding: 10px;
-      }
-
-      .header h1 {
-        font-size: 22px;
-      }
-
-      .header-subtitle {
-        font-size: 11px;
-      }
-    }
-  </style>
+          background: #FF8E8E;
+        }
+    
+        /* Auth styles */
+        .auth-container {
+          max-width: 400px;
+          margin: 100px auto;
+          padding: 32px;
+          background: var(--bg-secondary);
+          border-radius: 20px;
+          border: 2px solid var(--border);
+          box-shadow: 0 10px 40px var(--shadow-strong);
+        }
+    
+        .auth-title {
+          font-family: 'Poppins', sans-serif;
+          font-size: 32px;
+          font-weight: 800;
+          text-align: center;
+          margin-bottom: 8px;
+          background: linear-gradient(135deg, var(--accent) 0%, #FF8E8E 100%);
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+        }
+    
+        .auth-subtitle {
+          text-align: center;
+          color: var(--text-secondary);
+          font-size: 14px;
+          margin-bottom: 32px;
+        }
+    
+        .auth-tabs {
+          display: flex;
+          gap: 8px;
+          margin-bottom: 24px;
+        }
+    
+        .auth-tab {
+          flex: 1;
+          padding: 12px;
+          background: var(--bg-tertiary);
+          border: 2px solid transparent;
+          color: var(--text-secondary);
+          font-weight: 600;
+          cursor: pointer;
+          border-radius: 12px;
+          transition: all 0.2s;
+          font-family: 'Poppins', sans-serif;
+        }
+    
+        .auth-tab.active {
+          background: var(--accent);
+          color: white;
+        }
+    
+        .auth-error {
+          background: #FFE8E0;
+          border: 2px solid var(--accent);
+          color: var(--accent);
+          padding: 12px;
+          border-radius: 10px;
+          margin-bottom: 16px;
+          font-size: 13px;
+          font-weight: 600;
+        }
+    
+        .auth-footer {
+          text-align: center;
+          margin-top: 24px;
+          font-size: 13px;
+          color: var(--text-secondary);
+        }
+    
+        .auth-link {
+          color: var(--accent);
+          font-weight: 600;
+          cursor: pointer;
+          text-decoration: underline;
+        }
+    
+        .logout-btn {
+          background: var(--bg-tertiary);
+          border: 2px solid var(--border);
+          color: var(--text-secondary);
+          padding: 8px 16px;
+          font-size: 12px;
+          font-weight: 600;
+          cursor: pointer;
+          border-radius: 20px;
+          transition: all 0.2s;
+          font-family: 'Poppins', sans-serif;
+        }
+    
+        .logout-btn:active {
+          background: var(--accent);
+          color: white;
+        }
+      </style>
 </head>
 <body>
   <div id="root"></div>
@@ -1033,24 +933,229 @@
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 
   <script type="text/babel">
-    const { useState, useEffect, useRef } = React;
+      const SUPABASE_URL = 'https://wvogkaailuwqojhljhmv.supabase.co';
+      const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind2b2drYWFpbHV3cW9qaGxqaG12Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njg1OTEwNzksImV4cCI6MjA4NDE2NzA3OX0.PfUsBawk-x3FWZL0BAe-_tRyveMUQor1bbYly5qIfQM';
+      
+      const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+      
+      const { useState, useEffect, useRef } = React;
 
-    // Storage utilities
-    const storage = {
-      get: (key) => {
-        try {
-          const item = localStorage.getItem(key);
-          return item ? JSON.parse(item) : null;
-        } catch (e) {
-          return null;
+    // Supabase utilities
+    const db = {
+      // Programmes
+      async getPrograms(userId) {
+        const { data, error } = await supabase
+          .from('programs')
+          .select(`
+            *,
+            sessions (
+              *,
+              exercises (*)
+            )
+          `)
+          .eq('user_id', userId)
+          .order('created_at', { ascending: true });
+        
+        if (error) {
+          console.error('Error fetching programs:', error);
+          return [];
         }
+        
+        return data.map(p => ({
+          id: p.id,
+          name: p.name,
+          createdAt: new Date(p.created_at).getTime(),
+          sessions: p.sessions.map(s => ({
+            id: s.id,
+            name: s.name,
+            exercises: s.exercises.map(e => ({
+              id: e.id,
+              name: e.name,
+              sets: e.sets,
+              restTime: e.rest_time,
+              notes: e.notes
+            }))
+          }))
+        }));
       },
-      set: (key, value) => {
-        try {
-          localStorage.setItem(key, JSON.stringify(value));
-        } catch (e) {
-          console.error('Storage error:', e);
+    
+      async addProgram(userId, name) {
+        const { data, error } = await supabase
+          .from('programs')
+          .insert({ user_id: userId, name })
+          .select()
+          .single();
+        
+        if (error) throw error;
+        return data;
+      },
+    
+      async deleteProgram(programId) {
+        const { error } = await supabase
+          .from('programs')
+          .delete()
+          .eq('id', programId);
+        
+        if (error) throw error;
+      },
+    
+      async addSession(programId, name) {
+        const { data, error } = await supabase
+          .from('sessions')
+          .insert({ program_id: programId, name })
+          .select()
+          .single();
+        
+        if (error) throw error;
+        return data;
+      },
+    
+      async deleteSession(sessionId) {
+        const { error } = await supabase
+          .from('sessions')
+          .delete()
+          .eq('id', sessionId);
+        
+        if (error) throw error;
+      },
+    
+      async addExercise(sessionId, exerciseData) {
+        const { data, error } = await supabase
+          .from('exercises')
+          .insert({
+            session_id: sessionId,
+            name: exerciseData.name,
+            sets: exerciseData.sets,
+            rest_time: exerciseData.restTime,
+            notes: exerciseData.notes
+          })
+          .select()
+          .single();
+        
+        if (error) throw error;
+        return data;
+      },
+    
+      async updateExercise(exerciseId, exerciseData) {
+        const { error } = await supabase
+          .from('exercises')
+          .update({
+            name: exerciseData.name,
+            sets: exerciseData.sets,
+            rest_time: exerciseData.restTime,
+            notes: exerciseData.notes
+          })
+          .eq('id', exerciseId);
+        
+        if (error) throw error;
+      },
+    
+      async deleteExercise(exerciseId) {
+        const { error } = await supabase
+          .from('exercises')
+          .delete()
+          .eq('id', exerciseId);
+        
+        if (error) throw error;
+      },
+    
+      // Workout History
+      async getWorkoutHistory(userId) {
+        const { data, error } = await supabase
+          .from('workout_history')
+          .select('*')
+          .eq('user_id', userId)
+          .order('completed_at', { ascending: false });
+        
+        if (error) {
+          console.error('Error fetching history:', error);
+          return [];
         }
+        
+        return data.map(w => ({
+          id: w.id,
+          programId: w.program_id,
+          programName: w.program_name,
+          sessionId: w.session_id,
+          sessionName: w.session_name,
+          exercises: w.exercises,
+          startedAt: new Date(w.started_at).getTime(),
+          completedAt: new Date(w.completed_at).getTime(),
+          duration: w.duration
+        }));
+      },
+    
+      async addWorkoutHistory(userId, workout) {
+        const { error } = await supabase
+          .from('workout_history')
+          .insert({
+            user_id: userId,
+            program_id: workout.programId,
+            program_name: workout.programName,
+            session_id: workout.sessionId,
+            session_name: workout.sessionName,
+            exercises: workout.exercises,
+            started_at: new Date(workout.startedAt).toISOString(),
+            completed_at: new Date(workout.completedAt).toISOString(),
+            duration: workout.duration
+          });
+        
+        if (error) throw error;
+      },
+    
+      async deleteWorkout(workoutId) {
+        const { error } = await supabase
+          .from('workout_history')
+          .delete()
+          .eq('id', workoutId);
+        
+        if (error) throw error;
+      },
+    
+      async updateWorkout(workoutId, exercises) {
+        const { error } = await supabase
+          .from('workout_history')
+          .update({ exercises })
+          .eq('id', workoutId);
+        
+        if (error) throw error;
+      }
+    };
+    
+    // Auth utilities
+    const auth = {
+      async signUp(email, password) {
+        const { data, error } = await supabase.auth.signUp({
+          email,
+          password
+        });
+        
+        if (error) throw error;
+        return data;
+      },
+    
+      async signIn(email, password) {
+        const { data, error } = await supabase.auth.signInWithPassword({
+          email,
+          password
+        });
+        
+        if (error) throw error;
+        return data;
+      },
+    
+      async signOut() {
+        const { error } = await supabase.auth.signOut();
+        if (error) throw error;
+      },
+    
+      async getUser() {
+        const { data: { user } } = await supabase.auth.getUser();
+        return user;
+      },
+    
+      onAuthStateChange(callback) {
+        return supabase.auth.onAuthStateChange(callback);
       }
     };
 
@@ -1073,12 +1178,9 @@
       }
     };
 
-    // Calculate duration in minutes
-    const calculateDuration = (start, end) => {
-      return Math.round((end - start) / 60000);
-    };
-
     function App() {
+      const [user, setUser] = useState(null);
+      const [loading, setLoading] = useState(true);
       const [view, setView] = useState('programs');
       const [programs, setPrograms] = useState([]);
       const [workoutHistory, setWorkoutHistory] = useState([]);
@@ -1090,23 +1192,47 @@
       const [currentWorkout, setCurrentWorkout] = useState(null);
       const [activeWorkout, setActiveWorkout] = useState(null);
 
-      // Load data on mount
+      // Check auth on mount
       useEffect(() => {
-        const savedPrograms = storage.get('gym_programs') || [];
-        const savedHistory = storage.get('workout_history') || [];
-        setPrograms(savedPrograms);
-        setWorkoutHistory(savedHistory);
+        auth.getUser().then(user => {
+          setUser(user);
+          setLoading(false);
+        });
+    
+        const { data: subscription } = auth.onAuthStateChange((event, session) => {
+          setUser(session?.user ?? null);
+        });
+    
+        return () => subscription?.subscription?.unsubscribe();
       }, []);
-
-      // Save data on change
+    
+      // Load data when user changes
       useEffect(() => {
-        storage.set('gym_programs', programs);
-      }, [programs]);
-
-      useEffect(() => {
-        storage.set('workout_history', workoutHistory);
-      }, [workoutHistory]);
-
+        if (user) {
+          loadData();
+        } else {
+          setPrograms([]);
+          setWorkoutHistory([]);
+        }
+      }, [user]);
+    
+      const loadData = async () => {
+        if (!user) return;
+        
+        try {
+          const [programsData, historyData] = await Promise.all([
+            db.getPrograms(user.id),
+            db.getWorkoutHistory(user.id)
+          ]);
+          
+          setPrograms(programsData);
+          setWorkoutHistory(historyData);
+        } catch (error) {
+          console.error('Error loading data:', error);
+          alert('Erreur lors du chargement des données');
+        }
+      };
+    
       const openModal = (type, program = null, session = null, exercise = null, workout = null) => {
         setModalType(type);
         setCurrentProgram(program);
@@ -1115,7 +1241,7 @@
         setCurrentWorkout(workout);
         setShowModal(true);
       };
-
+    
       const closeModal = () => {
         setShowModal(false);
         setModalType('');
@@ -1124,108 +1250,80 @@
         setCurrentExercise(null);
         setCurrentWorkout(null);
       };
-
-      const addProgram = (name) => {
-        const newProgram = {
-          id: generateId(),
-          name,
-          sessions: [],
-          createdAt: Date.now()
-        };
-        setPrograms([...programs, newProgram]);
-        closeModal();
+    
+      const addProgram = async (name) => {
+        try {
+          await db.addProgram(user.id, name);
+          await loadData();
+          closeModal();
+        } catch (error) {
+          alert('Erreur lors de la création du programme');
+        }
       };
-
-      const deleteProgram = (programId) => {
+    
+      const deleteProgram = async (programId) => {
         if (confirm('Supprimer ce programme ?')) {
-          setPrograms(programs.filter(p => p.id !== programId));
+          try {
+            await db.deleteProgram(programId);
+            await loadData();
+          } catch (error) {
+            alert('Erreur lors de la suppression');
+          }
         }
       };
-
-      const addSession = (programId, name) => {
-        const newSession = {
-          id: generateId(),
-          name,
-          exercises: []
-        };
-        setPrograms(programs.map(p => 
-          p.id === programId 
-            ? { ...p, sessions: [...p.sessions, newSession] }
-            : p
-        ));
-        closeModal();
+    
+      const addSession = async (programId, name) => {
+        try {
+          await db.addSession(programId, name);
+          await loadData();
+          closeModal();
+        } catch (error) {
+          alert('Erreur lors de la création de la séance');
+        }
       };
-
-      const deleteSession = (programId, sessionId) => {
+    
+      const deleteSession = async (programId, sessionId) => {
         if (confirm('Supprimer cette séance ?')) {
-          setPrograms(programs.map(p => 
-            p.id === programId
-              ? { ...p, sessions: p.sessions.filter(s => s.id !== sessionId) }
-              : p
-          ));
+          try {
+            await db.deleteSession(sessionId);
+            await loadData();
+          } catch (error) {
+            alert('Erreur lors de la suppression');
+          }
         }
       };
-
-      const addExercise = (programId, sessionId, exerciseData) => {
-        const newExercise = {
-          id: generateId(),
-          ...exerciseData
-        };
-        setPrograms(programs.map(p => 
-          p.id === programId
-            ? {
-                ...p,
-                sessions: p.sessions.map(s =>
-                  s.id === sessionId
-                    ? { ...s, exercises: [...s.exercises, newExercise] }
-                    : s
-                )
-              }
-            : p
-        ));
-        closeModal();
+    
+      const addExercise = async (programId, sessionId, exerciseData) => {
+        try {
+          await db.addExercise(sessionId, exerciseData);
+          await loadData();
+          closeModal();
+        } catch (error) {
+          alert('Erreur lors de la création de l\'exercice');
+        }
       };
-
-      const editExercise = (programId, sessionId, exerciseId, exerciseData) => {
-        setPrograms(programs.map(p => 
-          p.id === programId
-            ? {
-                ...p,
-                sessions: p.sessions.map(s =>
-                  s.id === sessionId
-                    ? {
-                        ...s,
-                        exercises: s.exercises.map(e =>
-                          e.id === exerciseId
-                            ? { ...e, ...exerciseData }
-                            : e
-                        )
-                      }
-                    : s
-                )
-              }
-            : p
-        ));
-        closeModal();
+    
+      const editExercise = async (programId, sessionId, exerciseId, exerciseData) => {
+        try {
+          await db.updateExercise(exerciseId, exerciseData);
+          await loadData();
+          closeModal();
+        } catch (error) {
+          alert('Erreur lors de la modification');
+        }
       };
-
-      const deleteExercise = (programId, sessionId, exerciseId) => {
+    
+      const deleteExercise = async (programId, sessionId, exerciseId) => {
         if (confirm('Supprimer cet exercice ?')) {
-          setPrograms(programs.map(p => 
-            p.id === programId
-              ? {
-                  ...p,
-                  sessions: p.sessions.map(s =>
-                    s.id === sessionId
-                      ? { ...s, exercises: s.exercises.filter(e => e.id !== exerciseId) }
-                      : s
-                  )
-                }
-              : p
-          ));
+          try {
+            await db.deleteExercise(exerciseId);
+            await loadData();
+          } catch (error) {
+            alert('Erreur lors de la suppression');
+          }
         }
       };
-
+    
       const startWorkout = (program, session) => {
         const workout = {
           program,
@@ -1243,10 +1341,9 @@
         setActiveWorkout(workout);
         setView('workout');
       };
-
-      const endWorkout = (workout) => {
+    
+      const endWorkout = async (workout) => {
         const completedWorkout = {
-          id: generateId(),
           programId: workout.program.id,
           programName: workout.program.name,
           sessionId: workout.session.id,
@@ -1257,48 +1354,88 @@
           duration: calculateDuration(workout.startedAt, Date.now())
         };
         
-        setWorkoutHistory([completedWorkout, ...workoutHistory]);
-        setActiveWorkout(null);
-        setView('programs');
+        try {
+          await db.addWorkoutHistory(user.id, completedWorkout);
+          await loadData();
+          setActiveWorkout(null);
+          setView('programs');
+        } catch (error) {
+          alert('Erreur lors de la sauvegarde de l\'entraînement');
+        }
       };
-
-      const deleteWorkout = (workoutId) => {
+    
+      const deleteWorkout = async (workoutId) => {
         if (confirm('Supprimer cette séance de l\'historique ?')) {
-          setWorkoutHistory(workoutHistory.filter(w => w.id !== workoutId));
+          try {
+            await db.deleteWorkout(workoutId);
+            await loadData();
+          } catch (error) {
+            alert('Erreur lors de la suppression');
+          }
         }
       };
-
-      const deleteHistoryExercise = (workoutId, exerciseId) => {
+    
+      const deleteHistoryExercise = async (workoutId, exerciseId) => {
         if (confirm('Supprimer cet exercice de l\'historique ?')) {
-          setWorkoutHistory(workoutHistory.map(w =>
-            w.id === workoutId
-              ? { ...w, exercises: w.exercises.filter(e => e.id !== exerciseId) }
-              : w
-          ));
+          try {
+            const workout = workoutHistory.find(w => w.id === workoutId);
+            const updatedExercises = workout.exercises.filter(e => e.id !== exerciseId);
+            await db.updateWorkout(workoutId, updatedExercises);
+            await loadData();
+          } catch (error) {
+            alert('Erreur lors de la suppression');
+          }
         }
       };
-
-      const editHistoryExercise = (workoutId, exerciseId, updatedSets) => {
-        setWorkoutHistory(workoutHistory.map(w =>
-          w.id === workoutId
-            ? {
-                ...w,
-                exercises: w.exercises.map(e =>
-                  e.id === exerciseId
-                    ? { ...e, sets: updatedSets }
-                    : e
-                )
-              }
-            : w
-        ));
-        closeModal();
+    
+      const editHistoryExercise = async (workoutId, exerciseId, updatedSets) => {
+        try {
+          const workout = workoutHistory.find(w => w.id === workoutId);
+          const updatedExercises = workout.exercises.map(e =>
+            e.id === exerciseId ? { ...e, sets: updatedSets } : e
+          );
+          await db.updateWorkout(workoutId, updatedExercises);
+          await loadData();
+          closeModal();
+        } catch (error) {
+          alert('Erreur lors de la modification');
+        }
       };
-
+    
+      if (loading) {
+        return (
+          <div className="app">
+            <div className="empty-state">
+              <div className="empty-icon">⏳</div>
+              <div className="empty-text">Chargement...</div>
+            </div>
+          </div>
+        );
+      }
+    
+      if (!user) {
+        return <AuthScreen />;
+      }
+    
       return (
         <div className="app">
           <header className="header">
-            <h1>GymTracker</h1>
-            <div className="header-subtitle">Ton coach personnel 💪</div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+              <div>
+                <h1>GymTracker</h1>
+                <div className="header-subtitle">Ton coach personnel 💪</div>
+              </div>
+              <button 
+                className="logout-btn"
+                onClick={async () => {
+                  if (confirm('Se déconnecter ?')) {
+                    await auth.signOut();
+                  }
+                }}
+              >
+                Déconnexion
+              </button>
+            </div>
             <nav className="nav">
               <button 
                 className={`nav-btn ${view === 'programs' ? 'active' : ''}`}
@@ -1320,7 +1457,7 @@
               </button>
             </nav>
           </header>
-
+    
           <div className="content">
             {view === 'programs' && (
               <ProgramsView 
@@ -1335,7 +1472,7 @@
                 onStartWorkout={startWorkout}
               />
             )}
-
+    
             {view === 'workout' && (
               <WorkoutView 
                 workout={activeWorkout}
@@ -1344,7 +1481,7 @@
                 onEndWorkout={endWorkout}
               />
             )}
-
+    
             {view === 'history' && (
               <HistoryView 
                 history={workoutHistory}
@@ -1355,7 +1492,7 @@
               />
             )}
           </div>
-
+    
           {showModal && (
             <Modal
               type={modalType}
@@ -1374,7 +1511,103 @@
         </div>
       );
     }
-
+    
+    const calculateDuration = (start, end) => {
+      return Math.round((end - start) / 60000);
+    };
+    
+    function AuthScreen() {
+      const [mode, setMode] = useState('login');
+      const [email, setEmail] = useState('');
+      const [password, setPassword] = useState('');
+      const [error, setError] = useState('');
+      const [loading, setLoading] = useState(false);
+    
+      const handleSubmit = async (e) => {
+        e.preventDefault();
+        setError('');
+        setLoading(true);
+    
+        try {
+          if (mode === 'login') {
+            await auth.signIn(email, password);
+          } else {
+            await auth.signUp(email, password);
+            alert('Compte créé ! Vous pouvez maintenant vous connecter.');
+            setMode('login');
+          }
+        } catch (err) {
+          setError(err.message || 'Une erreur est survenue');
+        } finally {
+          setLoading(false);
+        }
+      };
+    
+      return (
+        <div className="auth-container">
+          <h1 className="auth-title">GymTracker</h1>
+          <div className="auth-subtitle">Ton coach personnel 💪</div>
+    
+          <div className="auth-tabs">
+            <button 
+              className={`auth-tab ${mode === 'login' ? 'active' : ''}`}
+              onClick={() => setMode('login')}
+            >
+              Connexion
+            </button>
+            <button 
+              className={`auth-tab ${mode === 'signup' ? 'active' : ''}`}
+              onClick={() => setMode('signup')}
+            >
+              Inscription
+            </button>
+          </div>
+    
+          {error && (
+            <div className="auth-error">{error}</div>
+          )}
+    
+          <form onSubmit={handleSubmit}>
+            <div className="form-group">
+              <label className="form-label">Email</label>
+              <input
+                type="email"
+                className="form-input"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+                autoFocus
+              />
+            </div>
+    
+            <div className="form-group">
+              <label className="form-label">Mot de passe</label>
+              <input
+                type="password"
+                className="form-input"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                minLength="6"
+              />
+            </div>
+    
+            <button type="submit" className="btn" disabled={loading}>
+              {loading ? 'Chargement...' : mode === 'login' ? 'Se connecter' : 'Créer un compte'}
+            </button>
+          </form>
+    
+          {mode === 'login' && (
+            <div className="auth-footer">
+              Pas encore de compte ?{' '}
+              <span className="auth-link" onClick={() => setMode('signup')}>
+                Inscris-toi
+              </span>
+            </div>
+          )}
+        </div>
+      );
+    }
     function ProgramsView({ programs, onAddProgram, onDeleteProgram, onAddSession, onDeleteSession, onAddExercise, onEditExercise, onDeleteExercise, onStartWorkout }) {
       const [expandedProgram, setExpandedProgram] = useState(null);
       const [expandedSession, setExpandedSession] = useState(null);
@@ -1421,9 +1654,9 @@
                       {expandedSession === session.id && (
                         <div style={{ marginTop: '8px', paddingLeft: '8px' }}>
                           {session.exercises.map(exercise => (
-                            <div key={exercise.id} style={{
-                              background: 'var(--bg-tertiary)',
-                              padding: '12px',
+                            <div key={exercise.id} style={{ 
+                              background: 'var(--bg-tertiary)', 
+                              padding: '12px', 
                               marginBottom: '8px',
                               fontSize: '13px',
                               borderRadius: '8px'
@@ -1433,9 +1666,9 @@
                                 {exercise.sets} séries • Repos: {exercise.restTime}s
                               </div>
                               {exercise.notes && (
-                                <div style={{
-                                  fontSize: '12px',
-                                  fontStyle: 'italic',
+                                <div style={{ 
+                                  fontSize: '12px', 
+                                  fontStyle: 'italic', 
                                   color: 'var(--text-secondary)',
                                   marginBottom: '8px',
                                   paddingLeft: '8px',
@@ -1445,7 +1678,7 @@
                                 </div>
                               )}
                               <div className="exercise-actions">
-                                <button
+                                <button 
                                   className="btn-small btn-secondary"
                                   onClick={(e) => {
                                     e.stopPropagation();
@@ -1454,7 +1687,7 @@
                                 >
                                   ✏️ Modifier
                                 </button>
-                                <button
+                                <button 
                                   className="btn-small btn-delete"
                                   onClick={(e) => {
                                     e.stopPropagation();
@@ -1466,26 +1699,27 @@
                               </div>
                             </div>
                           ))}
-                          <div className="session-buttons">
-                            <button
-                              className="btn btn-secondary"
-                              onClick={() => onAddExercise(program, session)}
-                            >
-                              + Ajouter exercice
-                            </button>
-                            <button
-                              className="btn"
-                              onClick={() => onStartWorkout(program, session)}
-                            >
-                              🏋️ Démarrer
-                            </button>
-                            <button
-                              className="btn btn-delete"
-                              onClick={() => onDeleteSession(program.id, session.id)}
-                            >
-                              Supprimer
-                            </button>
-                          </div>
+                          <button 
+                            className="btn btn-secondary"
+                            style={{ marginTop: '8px' }}
+                            onClick={() => onAddExercise(program, session)}
+                          >
+                            + Ajouter un exercice
+                          </button>
+                          <button 
+                            className="btn"
+                            style={{ marginTop: '8px' }}
+                            onClick={() => onStartWorkout(program, session)}
+                          >
+                            🏋️ Démarrer cette séance
+                          </button>
+                          <button 
+                            className="btn btn-delete"
+                            style={{ marginTop: '8px' }}
+                            onClick={() => onDeleteSession(program.id, session.id)}
+                          >
+                            Supprimer la séance
+                          </button>
                         </div>
                       )}
                     </div>
@@ -1854,17 +2088,17 @@
               );
             })}
 
-            <div className="workout-nav">
+            <div style={{ display: 'flex', gap: '8px', marginTop: '16px' }}>
               {currentExerciseIndex > 0 && (
-                <button
+                <button 
                   className="btn btn-secondary"
                   onClick={() => setCurrentExerciseIndex(currentExerciseIndex - 1)}
                 >
-                  ← Préc.
+                  ← Précédent
                 </button>
               )}
               {currentExerciseIndex < workout.exercises.length - 1 && (
-                <button
+                <button 
                   className="btn"
                   onClick={() => setCurrentExerciseIndex(currentExerciseIndex + 1)}
                 >
@@ -2131,11 +2365,13 @@
       });
 
       const [historySets, setHistorySets] = useState(
-        exercise?.sets?.filter(s => s.completed).map((s, idx) => ({
-          index: idx,
-          reps: s.reps,
-          weight: s.weight
-        })) || []
+        Array.isArray(exercise?.sets) 
+          ? exercise.sets.filter(s => s.completed).map((s, idx) => ({
+              index: idx,
+              reps: s.reps,
+              weight: s.weight
+            }))
+          : []
       );
 
       const handleSubmit = (e) => {
