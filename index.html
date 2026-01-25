@@ -311,21 +311,13 @@
       border-radius: 0 8px 8px 0;
     }
 
-    .exercise-item-wrapper {
-      transition: transform 0.2s ease, opacity 0.2s ease;
-    }
-
     .exercise-item-wrapper.dragging {
       opacity: 0.4;
-      transform: scale(0.95);
     }
 
-    .exercise-item-wrapper.drag-over-above {
-      transform: translateY(60px);
-    }
-
-    .exercise-item-wrapper.drag-over-below {
-      transform: translateY(-60px);
+    .exercise-item-wrapper.drag-over {
+      outline: 3px solid var(--accent);
+      outline-offset: 2px;
     }
 
     /* Workout tracker with Option B steppers */
@@ -2057,8 +2049,8 @@
       const [expandedSession, setExpandedSession] = useState(null);
       const [draggedExercise, setDraggedExercise] = useState(null);
 
-      const handleDragStart = (e, exercise, sessionId, index) => {
-        setDraggedExercise({ exercise, sessionId, index });
+      const handleDragStart = (e, exercise, sessionId) => {
+        setDraggedExercise({ exercise, sessionId });
         e.dataTransfer.effectAllowed = 'move';
         e.dataTransfer.setData('text/plain', exercise.id);
         setTimeout(() => {
@@ -2069,9 +2061,7 @@
       const handleDragEnd = (e) => {
         e.target.closest('.exercise-item-wrapper')?.classList.remove('dragging');
         setDraggedExercise(null);
-        document.querySelectorAll('.drag-over-above, .drag-over-below').forEach(el => {
-          el.classList.remove('drag-over-above', 'drag-over-below');
-        });
+        document.querySelectorAll('.drag-over').forEach(el => el.classList.remove('drag-over'));
       };
 
       const handleDragOver = (e) => {
@@ -2079,19 +2069,12 @@
         e.dataTransfer.dropEffect = 'move';
       };
 
-      const handleDragEnter = (e, exercise, index) => {
+      const handleDragEnter = (e, exercise) => {
         e.preventDefault();
         const wrapper = e.target.closest('.exercise-item-wrapper');
         if (wrapper && draggedExercise?.exercise.id !== exercise.id) {
-          document.querySelectorAll('.drag-over-above, .drag-over-below').forEach(el => {
-            el.classList.remove('drag-over-above', 'drag-over-below');
-          });
-          // Décaler vers le bas si on vient d'au-dessus, vers le haut sinon
-          if (draggedExercise.index < index) {
-            wrapper.classList.add('drag-over-above');
-          } else {
-            wrapper.classList.add('drag-over-below');
-          }
+          document.querySelectorAll('.drag-over').forEach(el => el.classList.remove('drag-over'));
+          wrapper.classList.add('drag-over');
         }
       };
 
@@ -2099,15 +2082,13 @@
         const wrapper = e.target.closest('.exercise-item-wrapper');
         const relatedTarget = e.relatedTarget?.closest('.exercise-item-wrapper');
         if (wrapper && wrapper !== relatedTarget) {
-          wrapper.classList.remove('drag-over-above', 'drag-over-below');
+          wrapper.classList.remove('drag-over');
         }
       };
 
       const handleDrop = (e, targetExercise, session) => {
         e.preventDefault();
-        document.querySelectorAll('.drag-over-above, .drag-over-below').forEach(el => {
-          el.classList.remove('drag-over-above', 'drag-over-below');
-        });
+        document.querySelectorAll('.drag-over').forEach(el => el.classList.remove('drag-over'));
 
         if (!draggedExercise || draggedExercise.sessionId !== session.id) return;
         if (draggedExercise.exercise.id === targetExercise.id) return;
@@ -2173,10 +2154,10 @@
                               key={exercise.id}
                               className="exercise-item-wrapper"
                               draggable="true"
-                              onDragStart={(e) => handleDragStart(e, exercise, session.id, index)}
+                              onDragStart={(e) => handleDragStart(e, exercise, session.id)}
                               onDragEnd={handleDragEnd}
                               onDragOver={handleDragOver}
-                              onDragEnter={(e) => handleDragEnter(e, exercise, index)}
+                              onDragEnter={(e) => handleDragEnter(e, exercise)}
                               onDragLeave={handleDragLeave}
                               onDrop={(e) => handleDrop(e, exercise, session)}
                             >
