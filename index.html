@@ -1794,14 +1794,23 @@
           completedAt: Date.now(),
           duration: calculateDuration(workout.startedAt, Date.now())
         };
-        
+
         try {
           await db.addWorkoutHistory(user.id, completedWorkout);
-          await loadData();
-          setActiveWorkout(null);
-          setView('programs');
         } catch (error) {
+          console.error('Error saving workout:', error);
           alert('Erreur lors de la sauvegarde de l\'entraînement');
+          return;
+        }
+
+        // Toujours revenir à l'écran principal, même si loadData échoue
+        setActiveWorkout(null);
+        setView('programs');
+
+        try {
+          await loadData();
+        } catch (error) {
+          console.error('Error reloading data:', error);
         }
       };
 
