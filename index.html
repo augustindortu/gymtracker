@@ -308,29 +308,7 @@
       background: var(--bg-tertiary);
       padding: 12px;
       font-size: 13px;
-    }
-
-    .exercise-drag-handle {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      min-width: 32px;
-      background: var(--bg-tertiary);
-      color: var(--text-secondary);
-      font-size: 16px;
-      cursor: grab;
-      user-select: none;
-      transition: color 0.2s, background 0.2s;
-      border-left: 1px solid var(--border);
-    }
-
-    .exercise-drag-handle:hover {
-      color: var(--accent);
-      background: var(--bg-secondary);
-    }
-
-    .exercise-drag-handle:active {
-      cursor: grabbing;
+      border-radius: 0 8px 8px 0;
     }
 
     .exercise-item-wrapper.dragging {
@@ -2221,7 +2199,6 @@
                                   </button>
                                 </div>
                               </div>
-                              <div className="exercise-drag-handle" title="Glisser pour réordonner">☰</div>
                             </div>
                           ))}
                           <div className="session-buttons">
