@@ -311,13 +311,38 @@
       border-radius: 0 8px 8px 0;
     }
 
-    .exercise-item-wrapper.dragging {
-      opacity: 0.4;
+    .exercise-item-wrapper {
+      touch-action: none;
+      user-select: none;
+      transition: transform 0.15s ease, opacity 0.15s ease;
     }
 
-    .exercise-item-wrapper.drag-over {
-      outline: 3px solid var(--accent);
-      outline-offset: 2px;
+    .exercise-item-wrapper.dragging {
+      opacity: 0.3;
+      transform: scale(0.95);
+    }
+
+    .exercise-item-wrapper.drag-over-top {
+      transform: translateY(8px);
+      border-top: 3px solid var(--accent);
+      margin-top: -3px;
+    }
+
+    .exercise-item-wrapper.drag-over-bottom {
+      transform: translateY(-8px);
+      border-bottom: 3px solid var(--accent);
+      margin-bottom: -3px;
+    }
+
+    .drag-ghost {
+      position: fixed;
+      pointer-events: none;
+      z-index: 1000;
+      opacity: 0.9;
+      transform: scale(1.02);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+      border-radius: 8px;
+      background: var(--bg-tertiary);
     }
 
     /* Workout tracker with Option B steppers */
@@ -2047,65 +2072,140 @@
     function ProgramsView({ programs, onAddProgram, onDeleteProgram, onAddSession, onDeleteSession, onAddExercise, onEditExercise, onDeleteExercise, onReorderExercises, onStartWorkout }) {
       const [expandedProgram, setExpandedProgram] = useState(null);
       const [expandedSession, setExpandedSession] = useState(null);
-      const [draggedExercise, setDraggedExercise] = useState(null);
+      const dragState = useRef({
+        isDragging: false,
+        exercise: null,
+        sessionId: null,
+        startY: 0,
+        currentY: 0,
+        ghost: null,
+        sourceEl: null,
+        targetEl: null,
+        insertPosition: null
+      });
 
-      const handleDragStart = (e, exercise, sessionId) => {
-        setDraggedExercise({ exercise, sessionId });
-        e.dataTransfer.effectAllowed = 'move';
-        e.dataTransfer.setData('text/plain', exercise.id);
-        setTimeout(() => {
-          e.target.closest('.exercise-item-wrapper')?.classList.add('dragging');
-        }, 0);
+      const clearDragClasses = () => {
+        document.querySelectorAll('.dragging, .drag-over-top, .drag-over-bottom').forEach(el => {
+          el.classList.remove('dragging', 'drag-over-top', 'drag-over-bottom');
+        });
       };
 
-      const handleDragEnd = (e) => {
-        e.target.closest('.exercise-item-wrapper')?.classList.remove('dragging');
-        setDraggedExercise(null);
-        document.querySelectorAll('.drag-over').forEach(el => el.classList.remove('drag-over'));
-      };
-
-      const handleDragOver = (e) => {
-        e.preventDefault();
-        e.dataTransfer.dropEffect = 'move';
-      };
-
-      const handleDragEnter = (e, exercise) => {
-        e.preventDefault();
-        const wrapper = e.target.closest('.exercise-item-wrapper');
-        if (wrapper && draggedExercise?.exercise.id !== exercise.id) {
-          document.querySelectorAll('.drag-over').forEach(el => el.classList.remove('drag-over'));
-          wrapper.classList.add('drag-over');
+      const removeGhost = () => {
+        if (dragState.current.ghost) {
+          dragState.current.ghost.remove();
+          dragState.current.ghost = null;
         }
       };
 
-      const handleDragLeave = (e) => {
+      const createGhost = (sourceEl, x, y) => {
+        const ghost = sourceEl.cloneNode(true);
+        const rect = sourceEl.getBoundingClientRect();
+        ghost.className = 'drag-ghost';
+        ghost.style.width = rect.width + 'px';
+        ghost.style.left = rect.left + 'px';
+        ghost.style.top = y - 30 + 'px';
+        document.body.appendChild(ghost);
+        return ghost;
+      };
+
+      const handleTouchStart = (e, exercise, sessionId) => {
         const wrapper = e.target.closest('.exercise-item-wrapper');
-        const relatedTarget = e.relatedTarget?.closest('.exercise-item-wrapper');
-        if (wrapper && wrapper !== relatedTarget) {
-          wrapper.classList.remove('drag-over');
+        if (!wrapper) return;
+
+        const touch = e.touches[0];
+        dragState.current = {
+          isDragging: true,
+          exercise,
+          sessionId,
+          startY: touch.clientY,
+          currentY: touch.clientY,
+          ghost: createGhost(wrapper, touch.clientX, touch.clientY),
+          sourceEl: wrapper,
+          targetEl: null,
+          insertPosition: null
+        };
+
+        wrapper.classList.add('dragging');
+      };
+
+      const handleTouchMove = (e, session) => {
+        if (!dragState.current.isDragging) return;
+        e.preventDefault();
+
+        const touch = e.touches[0];
+        dragState.current.currentY = touch.clientY;
+
+        // Déplacer le ghost
+        if (dragState.current.ghost) {
+          dragState.current.ghost.style.top = touch.clientY - 30 + 'px';
+        }
+
+        // Trouver l'élément sous le doigt
+        const elementsUnder = document.elementsFromPoint(touch.clientX, touch.clientY);
+        const targetWrapper = elementsUnder.find(el =>
+          el.classList.contains('exercise-item-wrapper') &&
+          el !== dragState.current.sourceEl
+        );
+
+        // Nettoyer les anciennes classes
+        document.querySelectorAll('.drag-over-top, .drag-over-bottom').forEach(el => {
+          if (el !== targetWrapper) {
+            el.classList.remove('drag-over-top', 'drag-over-bottom');
+          }
+        });
+
+        if (targetWrapper) {
+          const rect = targetWrapper.getBoundingClientRect();
+          const midY = rect.top + rect.height / 2;
+
+          dragState.current.targetEl = targetWrapper;
+
+          if (touch.clientY < midY) {
+            targetWrapper.classList.remove('drag-over-bottom');
+            targetWrapper.classList.add('drag-over-top');
+            dragState.current.insertPosition = 'before';
+          } else {
+            targetWrapper.classList.remove('drag-over-top');
+            targetWrapper.classList.add('drag-over-bottom');
+            dragState.current.insertPosition = 'after';
+          }
+        } else {
+          dragState.current.targetEl = null;
+          dragState.current.insertPosition = null;
         }
       };
 
-      const handleDrop = (e, targetExercise, session) => {
-        e.preventDefault();
-        document.querySelectorAll('.drag-over').forEach(el => el.classList.remove('drag-over'));
+      const handleTouchEnd = (e, session) => {
+        if (!dragState.current.isDragging) return;
 
-        if (!draggedExercise || draggedExercise.sessionId !== session.id) return;
-        if (draggedExercise.exercise.id === targetExercise.id) return;
+        const { exercise, targetEl, insertPosition } = dragState.current;
 
-        const exercises = [...session.exercises];
-        const draggedIndex = exercises.findIndex(ex => ex.id === draggedExercise.exercise.id);
-        const targetIndex = exercises.findIndex(ex => ex.id === targetExercise.id);
+        if (targetEl && insertPosition) {
+          const targetId = targetEl.dataset.exerciseId;
+          const exercises = [...session.exercises];
+          const draggedIndex = exercises.findIndex(ex => ex.id === exercise.id);
+          let targetIndex = exercises.findIndex(ex => ex.id === targetId);
 
-        if (draggedIndex === -1 || targetIndex === -1) return;
+          if (draggedIndex !== -1 && targetIndex !== -1 && draggedIndex !== targetIndex) {
+            const [removed] = exercises.splice(draggedIndex, 1);
 
-        const [removed] = exercises.splice(draggedIndex, 1);
-        exercises.splice(targetIndex, 0, removed);
+            // Ajuster l'index si on a retiré un élément avant
+            if (draggedIndex < targetIndex) {
+              targetIndex--;
+            }
 
-        const newOrder = exercises.map(ex => ex.id);
-        onReorderExercises(session.id, newOrder);
+            if (insertPosition === 'after') {
+              targetIndex++;
+            }
 
-        setDraggedExercise(null);
+            exercises.splice(targetIndex, 0, removed);
+            onReorderExercises(session.id, exercises.map(ex => ex.id));
+          }
+        }
+
+        clearDragClasses();
+        removeGhost();
+        dragState.current.isDragging = false;
       };
 
       if (programs.length === 0) {
@@ -2153,13 +2253,10 @@
                             <div
                               key={exercise.id}
                               className="exercise-item-wrapper"
-                              draggable="true"
-                              onDragStart={(e) => handleDragStart(e, exercise, session.id)}
-                              onDragEnd={handleDragEnd}
-                              onDragOver={handleDragOver}
-                              onDragEnter={(e) => handleDragEnter(e, exercise)}
-                              onDragLeave={handleDragLeave}
-                              onDrop={(e) => handleDrop(e, exercise, session)}
+                              data-exercise-id={exercise.id}
+                              onTouchStart={(e) => handleTouchStart(e, exercise, session.id)}
+                              onTouchMove={(e) => handleTouchMove(e, session)}
+                              onTouchEnd={(e) => handleTouchEnd(e, session)}
                             >
                               <div className="exercise-order-number">{index + 1}</div>
                               <div className="exercise-content">
