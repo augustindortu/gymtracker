@@ -2150,11 +2150,17 @@
       const handleTouchMove = (e, session) => {
         const touch = e.touches[0];
 
-        // Si en mode scroll, simuler le scroll
+        // Si en mode scroll, simuler le scroll avec requestAnimationFrame
         if (dragState.current.isScrolling) {
-          const deltaY = touch.clientY - dragState.current.lastY;
-          dragState.current.lastY = touch.clientY;
-          window.scrollBy(0, -deltaY);
+          const currentY = touch.clientY;
+          if (!dragState.current.scrollRAF) {
+            dragState.current.scrollRAF = requestAnimationFrame(() => {
+              const deltaY = currentY - dragState.current.lastY;
+              dragState.current.lastY = currentY;
+              window.scrollBy({ top: -deltaY, behavior: 'instant' });
+              dragState.current.scrollRAF = null;
+            });
+          }
           return;
         }
 
