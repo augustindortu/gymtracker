@@ -2123,8 +2123,10 @@
         // Initialiser l'état en attente
         dragState.current = {
           isDragging: false,
+          isPending: true,
           exercise,
           sessionId,
+          startX,
           startY,
           currentY: startY,
           ghost: null,
@@ -2136,15 +2138,35 @@
 
         // Délai avant de commencer le drag (150ms)
         dragState.current.startTimer = setTimeout(() => {
-          if (dragState.current.sourceEl === wrapper) {
+          if (dragState.current.isPending && dragState.current.sourceEl === wrapper) {
             dragState.current.isDragging = true;
-            dragState.current.ghost = createGhost(wrapper, startX, startY);
+            dragState.current.isPending = false;
+            dragState.current.ghost = createGhost(wrapper, startX, dragState.current.currentY);
             wrapper.classList.add('dragging');
           }
         }, 150);
       };
 
       const handleTouchMove = (e, session) => {
+        const touch = e.touches[0];
+
+        // Si en attente (pendant le délai), vérifier si c'est un scroll
+        if (dragState.current.isPending && !dragState.current.isDragging) {
+          const deltaY = Math.abs(touch.clientY - dragState.current.startY);
+          const deltaX = Math.abs(touch.clientX - dragState.current.startX);
+
+          // Si mouvement > 10px, c'est un scroll, annuler le drag
+          if (deltaY > 10 || deltaX > 10) {
+            if (dragState.current.startTimer) {
+              clearTimeout(dragState.current.startTimer);
+              dragState.current.startTimer = null;
+            }
+            dragState.current.isPending = false;
+            return; // Laisser le scroll se faire
+          }
+          return;
+        }
+
         if (!dragState.current.isDragging) return;
         e.preventDefault();
 
@@ -2199,7 +2221,7 @@
         }
 
         if (!dragState.current.isDragging) {
-          dragState.current = { isDragging: false };
+          dragState.current = { isDragging: false, isPending: false };
           return;
         }
 
