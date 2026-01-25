@@ -2170,7 +2170,6 @@
         if (!dragState.current.isDragging) return;
         e.preventDefault();
 
-        const touch = e.touches[0];
         dragState.current.currentY = touch.clientY;
 
         // Déplacer le ghost
