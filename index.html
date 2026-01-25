@@ -1342,10 +1342,10 @@
           id: p.id,
           name: p.name,
           createdAt: new Date(p.created_at).getTime(),
-          sessions: p.sessions.map(s => ({
+          sessions: (p.sessions || []).map(s => ({
             id: s.id,
             name: s.name,
-            exercises: s.exercises
+            exercises: (s.exercises || [])
               .sort((a, b) => (a.position ?? 0) - (b.position ?? 0))
               .map(e => ({
                 id: e.id,
