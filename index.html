@@ -312,6 +312,7 @@
     }
 
     .exercise-item-wrapper {
+      touch-action: none;
       -webkit-user-select: none;
       -moz-user-select: none;
       -ms-user-select: none;
@@ -2149,19 +2150,29 @@
       const handleTouchMove = (e, session) => {
         const touch = e.touches[0];
 
+        // Si en mode scroll, simuler le scroll
+        if (dragState.current.isScrolling) {
+          const deltaY = touch.clientY - dragState.current.lastY;
+          dragState.current.lastY = touch.clientY;
+          window.scrollBy(0, -deltaY);
+          return;
+        }
+
         // Si en attente (pendant le délai), vérifier si c'est un scroll
         if (dragState.current.isPending && !dragState.current.isDragging) {
           const deltaY = Math.abs(touch.clientY - dragState.current.startY);
           const deltaX = Math.abs(touch.clientX - dragState.current.startX);
 
-          // Si mouvement > 10px, c'est un scroll, annuler le drag
+          // Si mouvement > 10px, c'est un scroll
           if (deltaY > 10 || deltaX > 10) {
             if (dragState.current.startTimer) {
               clearTimeout(dragState.current.startTimer);
               dragState.current.startTimer = null;
             }
             dragState.current.isPending = false;
-            return; // Laisser le scroll se faire
+            dragState.current.isScrolling = true;
+            dragState.current.lastY = touch.clientY;
+            return;
           }
           return;
         }
@@ -2219,7 +2230,7 @@
         }
 
         if (!dragState.current.isDragging) {
-          dragState.current = { isDragging: false, isPending: false };
+          dragState.current = { isDragging: false, isPending: false, isScrolling: false };
           return;
         }
 
