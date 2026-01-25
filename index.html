@@ -1706,7 +1706,12 @@
           alert('Erreur lors de la sauvegarde de l\'entraînement');
         }
       };
-    
+
+      const discardWorkout = () => {
+        setActiveWorkout(null);
+        setView('programs');
+      };
+
       const deleteWorkout = async (workoutId) => {
         if (confirm('Supprimer cette séance de l\'historique ?')) {
           try {
@@ -1822,6 +1827,7 @@
                 workoutHistory={workoutHistory}
                 onUpdateWorkout={setActiveWorkout}
                 onEndWorkout={endWorkout}
+                onDiscardWorkout={discardWorkout}
               />
             )}
     
@@ -2093,11 +2099,12 @@
       );
     }
 
-    function WorkoutView({ workout, workoutHistory, onUpdateWorkout, onEndWorkout }) {
+    function WorkoutView({ workout, workoutHistory, onUpdateWorkout, onEndWorkout, onDiscardWorkout }) {
       const [currentExerciseIndex, setCurrentExerciseIndex] = useState(0);
       const [restTimer, setRestTimer] = useState(null);
       const [restRemaining, setRestRemaining] = useState(0);
       const [showSuccess, setShowSuccess] = useState(false);
+      const [showEndModal, setShowEndModal] = useState(false);
       const timerRef = useRef(null);
 
       useEffect(() => {
@@ -2273,14 +2280,51 @@
                 Exercice {currentExerciseIndex + 1}/{workout.exercises.length}
               </div>
             </div>
-            <button className="btn-small btn-delete" onClick={() => {
-              if (confirm('Terminer cet entraînement ?')) {
-                onEndWorkout(workout);
-              }
-            }}>
+            <button className="btn-small btn-delete" onClick={() => setShowEndModal(true)}>
               Terminer
             </button>
           </div>
+
+          {/* Modal de fin d'entraînement */}
+          {showEndModal && (
+            <div className="modal active" onClick={() => setShowEndModal(false)}>
+              <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+                <div className="modal-header">
+                  <h2 className="modal-title">Terminer l'entraînement ?</h2>
+                  <button className="modal-close" onClick={() => setShowEndModal(false)}>✕</button>
+                </div>
+                <p style={{ marginBottom: '20px', color: 'var(--text-secondary)' }}>
+                  Que souhaitez-vous faire avec cet entraînement ?
+                </p>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                  <button
+                    className="btn"
+                    onClick={() => {
+                      setShowEndModal(false);
+                      onEndWorkout(workout);
+                    }}
+                  >
+                    ✓ Enregistrer dans l'historique
+                  </button>
+                  <button
+                    className="btn btn-delete"
+                    onClick={() => {
+                      setShowEndModal(false);
+                      onDiscardWorkout();
+                    }}
+                  >
+                    🗑️ Supprimer sans enregistrer
+                  </button>
+                  <button
+                    className="btn btn-secondary"
+                    onClick={() => setShowEndModal(false)}
+                  >
+                    Continuer l'entraînement
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
 
           {showSuccess && (
             <div className="success-message">
