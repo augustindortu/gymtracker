@@ -313,12 +313,16 @@
 
     .exercise-item-wrapper {
       touch-action: none;
+      -webkit-user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
       user-select: none;
+      -webkit-touch-callout: none;
       transition: transform 0.15s ease, opacity 0.15s ease;
     }
 
     .exercise-item-wrapper.dragging {
-      opacity: 0.3;
+      opacity: 0.2;
       transform: scale(0.95);
     }
 
@@ -2113,19 +2117,31 @@
         if (!wrapper) return;
 
         const touch = e.touches[0];
+        const startX = touch.clientX;
+        const startY = touch.clientY;
+
+        // Initialiser l'état en attente
         dragState.current = {
-          isDragging: true,
+          isDragging: false,
           exercise,
           sessionId,
-          startY: touch.clientY,
-          currentY: touch.clientY,
-          ghost: createGhost(wrapper, touch.clientX, touch.clientY),
+          startY,
+          currentY: startY,
+          ghost: null,
           sourceEl: wrapper,
           targetEl: null,
-          insertPosition: null
+          insertPosition: null,
+          startTimer: null
         };
 
-        wrapper.classList.add('dragging');
+        // Délai avant de commencer le drag (150ms)
+        dragState.current.startTimer = setTimeout(() => {
+          if (dragState.current.sourceEl === wrapper) {
+            dragState.current.isDragging = true;
+            dragState.current.ghost = createGhost(wrapper, startX, startY);
+            wrapper.classList.add('dragging');
+          }
+        }, 150);
       };
 
       const handleTouchMove = (e, session) => {
@@ -2176,7 +2192,16 @@
       };
 
       const handleTouchEnd = (e, session) => {
-        if (!dragState.current.isDragging) return;
+        // Annuler le timer si le drag n'a pas commencé
+        if (dragState.current.startTimer) {
+          clearTimeout(dragState.current.startTimer);
+          dragState.current.startTimer = null;
+        }
+
+        if (!dragState.current.isDragging) {
+          dragState.current = { isDragging: false };
+          return;
+        }
 
         const { exercise, targetEl, insertPosition } = dragState.current;
 
