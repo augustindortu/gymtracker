@@ -281,7 +281,66 @@
       gap: 6px;
       margin-top: 8px;
     }
-    
+
+    /* Drag & Drop Exercise Reordering */
+    .exercise-item-wrapper {
+      display: flex;
+      align-items: stretch;
+      margin-bottom: 8px;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    .exercise-order-number {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 32px;
+      background: var(--accent);
+      color: white;
+      font-family: 'Poppins', sans-serif;
+      font-weight: 700;
+      font-size: 14px;
+    }
+
+    .exercise-content {
+      flex: 1;
+      background: var(--bg-tertiary);
+      padding: 12px;
+      font-size: 13px;
+    }
+
+    .exercise-drag-handle {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 32px;
+      background: var(--bg-tertiary);
+      color: var(--text-secondary);
+      font-size: 16px;
+      cursor: grab;
+      user-select: none;
+      transition: color 0.2s, background 0.2s;
+      border-left: 1px solid var(--border);
+    }
+
+    .exercise-drag-handle:hover {
+      color: var(--accent);
+      background: var(--bg-secondary);
+    }
+
+    .exercise-drag-handle:active {
+      cursor: grabbing;
+    }
+
+    .exercise-item-wrapper.dragging {
+      opacity: 0.5;
+    }
+
+    .exercise-item-wrapper.drag-over {
+      box-shadow: 0 -3px 0 0 var(--accent);
+    }
+
     /* Workout tracker with Option B steppers */
     .tracker-exercise {
       background: var(--bg-secondary);
@@ -1286,13 +1345,16 @@
           sessions: p.sessions.map(s => ({
             id: s.id,
             name: s.name,
-            exercises: s.exercises.map(e => ({
-              id: e.id,
-              name: e.name,
-              sets: e.sets,
-              restTime: e.rest_time,
-              notes: e.notes
-            }))
+            exercises: s.exercises
+              .sort((a, b) => (a.position ?? 0) - (b.position ?? 0))
+              .map(e => ({
+                id: e.id,
+                name: e.name,
+                sets: e.sets,
+                restTime: e.rest_time,
+                notes: e.notes,
+                position: e.position ?? 0
+              }))
           }))
         }));
       },
@@ -1338,6 +1400,18 @@
       },
     
       async addExercise(sessionId, exerciseData) {
+        // Calculer la prochaine position
+        const { data: existingExercises } = await supabase
+          .from('exercises')
+          .select('position')
+          .eq('session_id', sessionId)
+          .order('position', { ascending: false })
+          .limit(1);
+
+        const nextPosition = existingExercises?.length > 0
+          ? existingExercises[0].position + 1
+          : 0;
+
         const { data, error } = await supabase
           .from('exercises')
           .insert({
@@ -1345,11 +1419,12 @@
             name: exerciseData.name,
             sets: exerciseData.sets,
             rest_time: exerciseData.restTime,
-            notes: exerciseData.notes
+            notes: exerciseData.notes,
+            position: nextPosition
           })
           .select()
           .single();
-        
+
         if (error) throw error;
         return data;
       },
@@ -1373,10 +1448,23 @@
           .from('exercises')
           .delete()
           .eq('id', exerciseId);
-        
+
         if (error) throw error;
       },
-    
+
+      async reorderExercises(exerciseIds) {
+        // Met à jour les positions de tous les exercices
+        // exerciseIds est un tableau d'IDs dans le nouvel ordre
+        for (let i = 0; i < exerciseIds.length; i++) {
+          const { error } = await supabase
+            .from('exercises')
+            .update({ position: i })
+            .eq('id', exerciseIds[i]);
+
+          if (error) throw error;
+        }
+      },
+
       // Workout History
       async getWorkoutHistory(userId) {
         const { data, error } = await supabase
@@ -1666,7 +1754,17 @@
           }
         }
       };
-    
+
+      const reorderExercises = async (sessionId, exerciseIds) => {
+        try {
+          await db.reorderExercises(exerciseIds);
+          await loadData();
+        } catch (error) {
+          console.error('Error reordering exercises:', error);
+          alert('Erreur lors de la réorganisation des exercices');
+        }
+      };
+
       const startWorkout = (program, session) => {
         const workout = {
           program,
@@ -1808,7 +1906,7 @@
     
           <div className="content">
             {view === 'programs' && (
-              <ProgramsView 
+              <ProgramsView
                 programs={programs}
                 onAddProgram={() => openModal('program')}
                 onDeleteProgram={deleteProgram}
@@ -1817,6 +1915,7 @@
                 onAddExercise={(program, session) => openModal('exercise', program, session)}
                 onEditExercise={(program, session, exercise) => openModal('edit-exercise', program, session, exercise)}
                 onDeleteExercise={deleteExercise}
+                onReorderExercises={reorderExercises}
                 onStartWorkout={startWorkout}
               />
             )}
@@ -1957,9 +2056,69 @@
         </div>
       );
     }
-    function ProgramsView({ programs, onAddProgram, onDeleteProgram, onAddSession, onDeleteSession, onAddExercise, onEditExercise, onDeleteExercise, onStartWorkout }) {
+    function ProgramsView({ programs, onAddProgram, onDeleteProgram, onAddSession, onDeleteSession, onAddExercise, onEditExercise, onDeleteExercise, onReorderExercises, onStartWorkout }) {
       const [expandedProgram, setExpandedProgram] = useState(null);
       const [expandedSession, setExpandedSession] = useState(null);
+      const [draggedExercise, setDraggedExercise] = useState(null);
+
+      const handleDragStart = (e, exercise, sessionId) => {
+        setDraggedExercise({ exercise, sessionId });
+        e.dataTransfer.effectAllowed = 'move';
+        e.dataTransfer.setData('text/plain', exercise.id);
+        setTimeout(() => {
+          e.target.closest('.exercise-item-wrapper')?.classList.add('dragging');
+        }, 0);
+      };
+
+      const handleDragEnd = (e) => {
+        e.target.closest('.exercise-item-wrapper')?.classList.remove('dragging');
+        setDraggedExercise(null);
+        document.querySelectorAll('.drag-over').forEach(el => el.classList.remove('drag-over'));
+      };
+
+      const handleDragOver = (e) => {
+        e.preventDefault();
+        e.dataTransfer.dropEffect = 'move';
+      };
+
+      const handleDragEnter = (e, exercise) => {
+        e.preventDefault();
+        const wrapper = e.target.closest('.exercise-item-wrapper');
+        if (wrapper && draggedExercise?.exercise.id !== exercise.id) {
+          document.querySelectorAll('.drag-over').forEach(el => el.classList.remove('drag-over'));
+          wrapper.classList.add('drag-over');
+        }
+      };
+
+      const handleDragLeave = (e) => {
+        const wrapper = e.target.closest('.exercise-item-wrapper');
+        const relatedTarget = e.relatedTarget?.closest('.exercise-item-wrapper');
+        if (wrapper && wrapper !== relatedTarget) {
+          wrapper.classList.remove('drag-over');
+        }
+      };
+
+      const handleDrop = (e, targetExercise, session) => {
+        e.preventDefault();
+        document.querySelectorAll('.drag-over').forEach(el => el.classList.remove('drag-over'));
+
+        if (!draggedExercise || draggedExercise.sessionId !== session.id) return;
+        if (draggedExercise.exercise.id === targetExercise.id) return;
+
+        const exercises = [...session.exercises];
+        const draggedIndex = exercises.findIndex(ex => ex.id === draggedExercise.exercise.id);
+        const targetIndex = exercises.findIndex(ex => ex.id === targetExercise.id);
+
+        if (draggedIndex === -1 || targetIndex === -1) return;
+
+        const [removed] = exercises.splice(draggedIndex, 1);
+        exercises.splice(targetIndex, 0, removed);
+
+        const newOrder = exercises.map(ex => ex.id);
+        onReorderExercises(session.id, newOrder);
+
+        setDraggedExercise(null);
+      };
 
       if (programs.length === 0) {
         return (
@@ -2002,50 +2161,58 @@
 
                       {expandedSession === session.id && (
                         <div style={{ marginTop: '8px', paddingLeft: '8px' }}>
-                          {session.exercises.map(exercise => (
-                            <div key={exercise.id} style={{ 
-                              background: 'var(--bg-tertiary)', 
-                              padding: '12px', 
-                              marginBottom: '8px',
-                              fontSize: '13px',
-                              borderRadius: '8px'
-                            }}>
-                              <div style={{ fontWeight: 'bold', marginBottom: '4px' }}>{exercise.name}</div>
-                              <div style={{ color: 'var(--text-secondary)', fontSize: '12px', marginBottom: '8px' }}>
-                                {exercise.sets} séries • Repos: {exercise.restTime}s
-                              </div>
-                              {exercise.notes && (
-                                <div style={{ 
-                                  fontSize: '12px', 
-                                  fontStyle: 'italic', 
-                                  color: 'var(--text-secondary)',
-                                  marginBottom: '8px',
-                                  paddingLeft: '8px',
-                                  borderLeft: '2px solid var(--border)'
-                                }}>
-                                  📝 {exercise.notes}
+                          {session.exercises.map((exercise, index) => (
+                            <div
+                              key={exercise.id}
+                              className="exercise-item-wrapper"
+                              draggable="true"
+                              onDragStart={(e) => handleDragStart(e, exercise, session.id)}
+                              onDragEnd={handleDragEnd}
+                              onDragOver={handleDragOver}
+                              onDragEnter={(e) => handleDragEnter(e, exercise)}
+                              onDragLeave={handleDragLeave}
+                              onDrop={(e) => handleDrop(e, exercise, session)}
+                            >
+                              <div className="exercise-order-number">{index + 1}</div>
+                              <div className="exercise-content">
+                                <div style={{ fontWeight: 'bold', marginBottom: '4px' }}>{exercise.name}</div>
+                                <div style={{ color: 'var(--text-secondary)', fontSize: '12px', marginBottom: '8px' }}>
+                                  {exercise.sets} séries • Repos: {exercise.restTime}s
                                 </div>
-                              )}
-                              <div className="exercise-actions">
-                                <button 
-                                  className="btn-small btn-secondary"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    onEditExercise(program, session, exercise);
-                                  }}
-                                >
-                                  ✏️ Modifier
-                                </button>
-                                <button 
-                                  className="btn-small btn-delete"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    onDeleteExercise(program.id, session.id, exercise.id);
-                                  }}
-                                >
-                                  🗑️ Supprimer
-                                </button>
+                                {exercise.notes && (
+                                  <div style={{
+                                    fontSize: '12px',
+                                    fontStyle: 'italic',
+                                    color: 'var(--text-secondary)',
+                                    marginBottom: '8px',
+                                    paddingLeft: '8px',
+                                    borderLeft: '2px solid var(--border)'
+                                  }}>
+                                    {exercise.notes}
+                                  </div>
+                                )}
+                                <div className="exercise-actions">
+                                  <button
+                                    className="btn-small btn-secondary"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      onEditExercise(program, session, exercise);
+                                    }}
+                                  >
+                                    Modifier
+                                  </button>
+                                  <button
+                                    className="btn-small btn-delete"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      onDeleteExercise(program.id, session.id, exercise.id);
+                                    }}
+                                  >
+                                    Supprimer
+                                  </button>
+                                </div>
                               </div>
+                              <div className="exercise-drag-handle" title="Glisser pour réordonner">☰</div>
                             </div>
                           ))}
                           <div className="session-buttons">
