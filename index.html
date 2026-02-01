@@ -1,1315 +1,16 @@
 <!DOCTYPE html>
 <html lang="fr">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>GymTracker</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <link rel="manifest" href="data:application/json;base64,eyJuYW1lIjoiR3ltVHJhY2tlciIsInNob3J0X25hbWUiOiJHeW1UcmFja2VyIiwic3RhcnRfdXJsIjoiLiIsImRpc3BsYXkiOiJzdGFuZGFsb25lIiwiYmFja2dyb3VuZF9jb2xvciI6IiNGRkY1RjAiLCJ0aGVtZV9jb2xvciI6IiNGRjZCNkIiLCJpY29ucyI6W3sic3JjIjoiZGF0YTppbWFnZS9zdmcreG1sLCUzQ3N2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCAxMDAgMTAwJyUzRSUzQ3JlY3Qgd2lkdGg9JzEwMCcgaGVpZ2h0PScxMDAnIGZpbGw9JyUyM0ZGNkI2QicvJTNFJTNDdGV4dCB4PScyNSUyNScgeT0nNjUlMjUnIGZvbnQtc2l6ZT0nNjAnIGZpbGw9J3doaXRlJyBmb250LWZhbWlseT0nQXJpYWwlMkNzYW5zLXNlcmlmJyUzRUclM0MvdGV4dCUzRSUzQy9zdmclM0UiLCJzaXplcyI6IjE5MngxOTIiLCJ0eXBlIjoiaW1hZ2Uvc3ZnK3htbCJ9XX0=">
-  <style>
-    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&family=DM+Sans:wght@400;500;700&display=swap');
-    
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-      -webkit-tap-highlight-color: transparent;
-    }
-    
-    :root {
-      --bg-primary: #FFF5F0;
-      --bg-secondary: #FFFFFF;
-      --bg-tertiary: #FFE8E0;
-      --text-primary: #2D2D2D;
-      --text-secondary: #8B8B8B;
-      --accent: #FF6B6B;
-      --accent-hover: #FF8E8E;
-      --accent-light: #FFB5B5;
-      --success: #4ECDC4;
-      --success-light: #7EDDD8;
-      --border: #FFD4CC;
-      --shadow: rgba(255, 107, 107, 0.15);
-      --shadow-strong: rgba(255, 107, 107, 0.25);
-    }
-    
-    body {
-      font-family: 'DM Sans', sans-serif;
-      background: linear-gradient(135deg, var(--bg-primary) 0%, #FFE8E0 100%);
-      color: var(--text-primary);
-      min-height: 100vh;
-      overflow-x: hidden;
-      -webkit-font-smoothing: antialiased;
-    }
-    
-    .app {
-      max-width: 100%;
-      margin: 0 auto;
-      padding-bottom: 80px;
-      overflow-x: hidden;
-    }
-    
-    /* Header */
-    .header {
-      background: var(--bg-secondary);
-      padding: 24px 20px;
-      position: sticky;
-      top: 0;
-      z-index: 100;
-      backdrop-filter: blur(10px);
-      box-shadow: 0 4px 20px var(--shadow);
-      border-bottom: 3px solid var(--accent);
-    }
-    
-    .header h1 {
-      font-family: 'Poppins', sans-serif;
-      font-size: 32px;
-      font-weight: 800;
-      background: linear-gradient(135deg, var(--accent) 0%, #FF8E8E 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-      margin-bottom: 4px;
-    }
-    
-    .header-subtitle {
-      font-size: 13px;
-      color: var(--text-secondary);
-      font-weight: 500;
-      letter-spacing: 0.5px;
-    }
-    
-    /* Navigation */
-    .nav {
-      display: flex;
-      gap: 8px;
-      margin-top: 16px;
-      overflow-x: auto;
-      -webkit-overflow-scrolling: touch;
-      scrollbar-width: none;
-    }
-    
-    .nav::-webkit-scrollbar {
-      display: none;
-    }
-    
-    .nav-btn {
-      flex-shrink: 0;
-      padding: 12px 20px;
-      background: var(--bg-tertiary);
-      border: 2px solid transparent;
-      color: var(--text-secondary);
-      font-family: 'Poppins', sans-serif;
-      font-size: 13px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      border-radius: 25px;
-    }
-    
-    .nav-btn.active {
-      background: linear-gradient(135deg, var(--accent) 0%, var(--accent-hover) 100%);
-      color: white;
-      box-shadow: 0 4px 15px var(--shadow-strong);
-      transform: translateY(-2px);
-    }
-    
-    .nav-btn:active {
-      transform: translateY(0);
-    }
-    
-    /* Content */
-    .content {
-      padding: 20px;
-    }
-    
-    .view {
-      display: none;
-    }
-    
-    .view.active {
-      display: block;
-      animation: fadeIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-    
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(15px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-    
-    /* Button styles */
-    .btn {
-      width: 100%;
-      padding: 16px;
-      background: linear-gradient(135deg, var(--accent) 0%, var(--accent-hover) 100%);
-      border: none;
-      color: white;
-      font-family: 'Poppins', sans-serif;
-      font-size: 15px;
-      font-weight: 700;
-      cursor: pointer;
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      border-radius: 12px;
-      box-shadow: 0 4px 15px var(--shadow-strong);
-    }
-    
-    .btn:active {
-      transform: scale(0.98);
-      box-shadow: 0 2px 8px var(--shadow);
-    }
-    
-    .btn-secondary {
-      background: var(--bg-secondary);
-      color: var(--accent);
-      border: 2px solid var(--accent);
-      box-shadow: none;
-    }
-    
-    .btn-secondary:active {
-      background: var(--bg-tertiary);
-    }
-    
-    .btn-small {
-      padding: 8px 16px;
-      font-size: 12px;
-      width: auto;
-      border-radius: 20px;
-    }
-    
-    /* Form elements */
-    .form-group {
-      margin-bottom: 20px;
-    }
-    
-    .form-label {
-      display: block;
-      font-size: 13px;
-      font-weight: 600;
-      color: var(--text-primary);
-      margin-bottom: 8px;
-    }
-    
-    .form-input, .form-select {
-      width: 100%;
-      padding: 14px 16px;
-      background: var(--bg-secondary);
-      border: 2px solid var(--border);
-      color: var(--text-primary);
-      font-family: 'DM Sans', sans-serif;
-      font-size: 15px;
-      border-radius: 12px;
-      transition: all 0.3s;
-    }
-    
-    .form-input:focus, .form-select:focus {
-      outline: none;
-      border-color: var(--accent);
-      box-shadow: 0 0 0 4px var(--shadow);
-    }
-    
-    textarea.form-input {
-      resize: vertical;
-      min-height: 80px;
-      font-family: 'DM Sans', sans-serif;
-    }
-    
-    /* Cards */
-    .card {
-      background: var(--bg-secondary);
-      border: 2px solid var(--border);
-      padding: 20px;
-      margin-bottom: 16px;
-      border-radius: 16px;
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      cursor: pointer;
-      box-shadow: 0 2px 10px rgba(255, 107, 107, 0.1);
-    }
-    
-    .card:active {
-      transform: scale(0.99);
-      box-shadow: 0 4px 20px var(--shadow-strong);
-    }
-    
-    .card-title {
-      font-family: 'Poppins', sans-serif;
-      font-size: 18px;
-      font-weight: 700;
-      color: var(--text-primary);
-      margin-bottom: 6px;
-    }
-    
-    .card-meta {
-      font-size: 13px;
-      color: var(--text-secondary);
-      font-weight: 500;
-    }
-    
-    .card-actions {
-      display: flex;
-      gap: 8px;
-      margin-top: 16px;
-    }
-    
-    /* Exercise item */
-    .exercise-item {
-      background: var(--bg-tertiary);
-      border-left: 4px solid var(--accent);
-      padding: 14px;
-      margin-bottom: 10px;
-      border-radius: 8px;
-      transition: all 0.2s;
-    }
-    
-    .exercise-item:active {
-      transform: translateX(4px);
-    }
-    
-    .exercise-name {
-      font-weight: 700;
-      font-size: 15px;
-      margin-bottom: 6px;
-      color: var(--text-primary);
-    }
-    
-    .exercise-rest {
-      font-size: 12px;
-      color: var(--success);
-      font-weight: 600;
-    }
-    
-    .exercise-actions {
-      display: flex;
-      gap: 6px;
-      margin-top: 8px;
-    }
-
-    /* Drag & Drop Exercise Reordering */
-    .exercise-item-wrapper {
-      display: flex;
-      align-items: stretch;
-      margin-bottom: 8px;
-      border-radius: 8px;
-      overflow: hidden;
-    }
-
-    .exercise-order-number {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      min-width: 32px;
-      background: var(--accent);
-      color: white;
-      font-family: 'Poppins', sans-serif;
-      font-weight: 700;
-      font-size: 14px;
-    }
-
-    .exercise-content {
-      flex: 1;
-      background: var(--bg-tertiary);
-      padding: 12px;
-      font-size: 13px;
-      border-radius: 0 8px 8px 0;
-    }
-
-    .exercise-item-wrapper {
-      touch-action: none;
-      -webkit-user-select: none;
-      -moz-user-select: none;
-      -ms-user-select: none;
-      user-select: none;
-      -webkit-touch-callout: none;
-      transition: transform 0.15s ease, opacity 0.15s ease;
-    }
-
-    .exercise-item-wrapper.dragging {
-      opacity: 0.2;
-      transform: scale(0.95);
-    }
-
-    .exercise-item-wrapper.drag-over-top {
-      transform: translateY(8px);
-      border-top: 3px solid var(--accent);
-      margin-top: -3px;
-    }
-
-    .exercise-item-wrapper.drag-over-bottom {
-      transform: translateY(-8px);
-      border-bottom: 3px solid var(--accent);
-      margin-bottom: -3px;
-    }
-
-    .drag-ghost {
-      position: fixed;
-      pointer-events: none;
-      z-index: 1000;
-      opacity: 0.9;
-      transform: scale(1.02);
-      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-      border-radius: 8px;
-      background: var(--bg-tertiary);
-    }
-
-    /* Workout tracker with Option B steppers */
-    .tracker-exercise {
-      background: var(--bg-secondary);
-      border: 2px solid var(--border);
-      padding: 20px;
-      margin-bottom: 20px;
-      border-radius: 16px;
-      box-shadow: 0 2px 10px rgba(255, 107, 107, 0.1);
-      overflow: hidden;
-    }
-    
-    .tracker-exercise.current {
-      border-color: var(--accent);
-      box-shadow: 0 6px 30px var(--shadow-strong);
-      border-width: 3px;
-    }
-    
-    .tracker-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 16px;
-    }
-    
-    .tracker-title {
-      font-family: 'Poppins', sans-serif;
-      font-size: 20px;
-      font-weight: 700;
-      color: var(--text-primary);
-    }
-    
-    .past-performance {
-      background: var(--bg-tertiary);
-      border: 2px dashed var(--border);
-      padding: 14px;
-      margin-bottom: 16px;
-      border-radius: 12px;
-    }
-    
-    .past-performance-title {
-      font-size: 12px;
-      font-weight: 700;
-      color: var(--text-secondary);
-      margin-bottom: 10px;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-    
-    .past-performance-row {
-      font-size: 13px;
-      color: var(--text-primary);
-      font-weight: 500;
-      margin-bottom: 4px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-    
-    .pr-badge {
-      background: linear-gradient(135deg, #FFD700 0%, #FFC700 100%);
-      color: #2D2D2D;
-      padding: 2px 8px;
-      border-radius: 10px;
-      font-size: 10px;
-      font-weight: 700;
-      text-transform: uppercase;
-      display: inline-flex;
-      align-items: center;
-      gap: 3px;
-    }
-    
-    /* Option B - Set row with steppers */
-    .set-row {
-      display: grid;
-      grid-template-columns: 50px 1fr 80px;
-      gap: 10px;
-      margin-bottom: 12px;
-      align-items: center;
-    }
-    
-    .set-label {
-      font-size: 13px;
-      font-weight: 700;
-      color: var(--text-secondary);
-    }
-    
-    .set-inputs {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-      min-width: 0;
-      overflow: hidden;
-    }
-    
-    .input-with-label {
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-      min-width: 0;
-    }
-    
-    .input-label {
-      font-size: 10px;
-      font-weight: 700;
-      color: var(--text-secondary);
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-    
-    .input-with-steppers {
-      display: flex;
-      align-items: center;
-      gap: 4px;
-      max-width: 100%;
-      overflow: hidden;
-    }
-    
-    .stepper-btn {
-      width: 32px;
-      height: 32px;
-      background: var(--bg-secondary);
-      border: 2px solid var(--border);
-      color: var(--accent);
-      font-size: 14px;
-      font-weight: 700;
-      cursor: pointer;
-      border-radius: 8px;
-      font-family: 'Poppins', sans-serif;
-      flex-shrink: 0;
-      transition: all 0.2s;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    
-    .stepper-btn.double {
-      font-size: 11px;
-    }
-    
-    .stepper-btn:active {
-      background: var(--accent);
-      color: white;
-      transform: scale(0.95);
-    }
-    
-    .set-input {
-      padding: 10px;
-      background: var(--bg-tertiary);
-      border: 2px solid var(--border);
-      color: var(--text-primary);
-      font-family: 'Poppins', sans-serif;
-      font-size: 16px;
-      text-align: center;
-      font-weight: 700;
-      border-radius: 10px;
-      flex: 1;
-      min-width: 0;
-      transition: all 0.2s;
-    }
-    
-    .set-input:focus {
-      outline: none;
-      border-color: var(--accent);
-      box-shadow: 0 0 0 3px var(--shadow);
-    }
-    
-    .set-input:disabled {
-      opacity: 0.6;
-      background: var(--bg-secondary);
-    }
-    
-    .set-done {
-      background: linear-gradient(135deg, var(--success) 0%, var(--success-light) 100%);
-      color: white;
-      padding: 12px;
-      font-size: 12px;
-      font-weight: 700;
-      border: none;
-      cursor: pointer;
-      border-radius: 10px;
-      transition: all 0.2s;
-      font-family: 'Poppins', sans-serif;
-    }
-    
-    .set-done:active {
-      transform: scale(0.95);
-    }
-    
-    .set-done.completed {
-      background: var(--bg-secondary);
-      color: var(--success);
-      border: 2px solid var(--success);
-    }
-    
-    /* Timer */
-    .rest-timer {
-      background: linear-gradient(135deg, #E8FFF9 0%, #D4F8F0 100%);
-      border: 3px solid var(--success);
-      padding: 28px;
-      text-align: center;
-      margin-bottom: 20px;
-      border-radius: 16px;
-      position: relative;
-      overflow: hidden;
-      box-shadow: 0 4px 20px rgba(78, 205, 196, 0.2);
-    }
-    
-    .rest-timer-bg {
-      position: absolute;
-      top: 0;
-      left: 0;
-      height: 100%;
-      background: var(--success);
-      opacity: 0.15;
-      transition: width 1s linear;
-    }
-    
-    .rest-timer-content {
-      position: relative;
-      z-index: 1;
-    }
-    
-    .rest-timer-label {
-      font-size: 13px;
-      font-weight: 700;
-      letter-spacing: 1px;
-      color: var(--text-secondary);
-      margin-bottom: 8px;
-      text-transform: uppercase;
-    }
-    
-    .rest-timer-time {
-      font-family: 'Poppins', sans-serif;
-      font-size: 64px;
-      font-weight: 800;
-      color: var(--success);
-      line-height: 1;
-    }
-    
-    /* History styles */
-    .history-filters {
-      display: flex;
-      gap: 8px;
-      margin-bottom: 20px;
-      overflow-x: auto;
-      -webkit-overflow-scrolling: touch;
-      scrollbar-width: none;
-    }
-    
-    .history-filters::-webkit-scrollbar {
-      display: none;
-    }
-    
-    .filter-btn {
-      flex-shrink: 0;
-      padding: 10px 18px;
-      background: var(--bg-secondary);
-      border: 2px solid var(--border);
-      color: var(--text-secondary);
-      font-size: 13px;
-      font-weight: 600;
-      cursor: pointer;
-      border-radius: 20px;
-      transition: all 0.2s;
-    }
-    
-    .filter-btn.active {
-      background: var(--accent);
-      color: white;
-      border-color: var(--accent);
-    }
-    
-    .history-card {
-      background: var(--bg-secondary);
-      border: 2px solid var(--border);
-      padding: 18px;
-      margin-bottom: 14px;
-      border-radius: 14px;
-      transition: all 0.2s;
-    }
-    
-    .history-card-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      margin-bottom: 8px;
-    }
-    
-    .history-card-content {
-      flex: 1;
-      cursor: pointer;
-    }
-    
-    .history-card-actions {
-      display: flex;
-      gap: 6px;
-      flex-shrink: 0;
-      margin-left: 8px;
-    }
-    
-    .icon-btn {
-      width: 32px;
-      height: 32px;
-      background: var(--bg-tertiary);
-      border: 2px solid var(--border);
-      color: var(--text-secondary);
-      font-size: 14px;
-      cursor: pointer;
-      border-radius: 8px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: all 0.2s;
-    }
-    
-    .icon-btn:active {
-      transform: scale(0.95);
-    }
-    
-    .icon-btn.delete {
-      color: #FF3B30;
-      border-color: #FF3B30;
-    }
-    
-    .icon-btn.delete:active {
-      background: #FF3B30;
-      color: white;
-    }
-    
-    .history-date {
-      font-size: 12px;
-      color: var(--text-secondary);
-      font-weight: 600;
-      margin-bottom: 6px;
-    }
-    
-    .history-title {
-      font-family: 'Poppins', sans-serif;
-      font-size: 17px;
-      font-weight: 700;
-      color: var(--text-primary);
-      margin-bottom: 8px;
-    }
-    
-    .history-stats {
-      display: flex;
-      gap: 16px;
-      flex-wrap: wrap;
-    }
-    
-    .stat-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      background: var(--bg-tertiary);
-      padding: 6px 12px;
-      border-radius: 20px;
-      font-size: 12px;
-      font-weight: 600;
-      color: var(--text-primary);
-    }
-    
-    .exercise-detail {
-      background: var(--bg-tertiary);
-      padding: 12px;
-      margin-top: 10px;
-      border-radius: 10px;
-      font-size: 13px;
-    }
-    
-    .exercise-detail-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 6px;
-    }
-    
-    .exercise-detail-title {
-      font-weight: 700;
-      color: var(--text-primary);
-    }
-    
-    .exercise-detail-sets {
-      color: var(--text-secondary);
-      line-height: 1.6;
-    }
-    
-    .progression-card {
-      background: linear-gradient(135deg, #E8FFF9 0%, #D4F8F0 100%);
-      border: 2px solid var(--success);
-      padding: 16px;
-      margin-bottom: 14px;
-      border-radius: 14px;
-    }
-    
-    .progression-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 12px;
-    }
-    
-    .progression-title {
-      font-family: 'Poppins', sans-serif;
-      font-size: 16px;
-      font-weight: 700;
-      color: var(--text-primary);
-    }
-    
-    .progression-pr {
-      background: var(--success);
-      color: white;
-      padding: 4px 10px;
-      border-radius: 12px;
-      font-size: 11px;
-      font-weight: 700;
-      text-transform: uppercase;
-    }
-    
-    .progression-list {
-      font-size: 13px;
-      color: var(--text-primary);
-      line-height: 1.8;
-    }
-    
-    /* Empty state */
-    .empty-state {
-      text-align: center;
-      padding: 60px 20px;
-      color: var(--text-secondary);
-    }
-    
-    .empty-icon {
-      font-size: 56px;
-      margin-bottom: 16px;
-      filter: grayscale(50%);
-    }
-    
-    .empty-text {
-      font-size: 16px;
-      font-weight: 600;
-    }
-    
-    /* Modal */
-    .modal {
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: rgba(0, 0, 0, 0.5);
-      backdrop-filter: blur(5px);
-      z-index: 1000;
-      display: none;
-      padding: 20px;
-      overflow-y: auto;
-    }
-    
-    .modal.active {
-      display: flex;
-      align-items: flex-start;
-      justify-content: center;
-      animation: fadeIn 0.3s;
-    }
-    
-    .modal-content {
-      background: var(--bg-secondary);
-      border-radius: 20px;
-      padding: 28px;
-      width: 100%;
-      max-width: 500px;
-      margin-top: 20px;
-      box-shadow: 0 10px 40px rgba(255, 107, 107, 0.3);
-    }
-    
-    .modal-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 24px;
-    }
-    
-    .modal-title {
-      font-family: 'Poppins', sans-serif;
-      font-size: 24px;
-      font-weight: 800;
-      color: var(--text-primary);
-    }
-    
-    .modal-close {
-      background: var(--bg-tertiary);
-      border: none;
-      color: var(--text-secondary);
-      font-size: 24px;
-      cursor: pointer;
-      padding: 0;
-      width: 36px;
-      height: 36px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      border-radius: 50%;
-      transition: all 0.2s;
-    }
-    
-    .modal-close:active {
-      background: var(--accent);
-      color: white;
-    }
-    
-    /* Workout navigation */
-    .workout-nav {
-      display: flex;
-      gap: 8px;
-      margin-top: 16px;
-    }
-
-    .workout-nav .btn {
-      flex: 1;
-    }
-
-    /* Session buttons */
-    .session-buttons {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-      margin-top: 12px;
-    }
-
-    /* Delete button */
-    .btn-delete {
-      background: transparent;
-      color: #FF3B30;
-      border: 2px solid #FF3B30;
-    }
-    
-    .btn-delete:active {
-      background: #FF3B30;
-      color: white;
-    }
-    
-    /* Success message */
-    .success-message {
-      background: linear-gradient(135deg, var(--success) 0%, var(--success-light) 100%);
-      color: white;
-      padding: 14px 18px;
-      border-radius: 12px;
-      margin-bottom: 16px;
-      font-weight: 600;
-      text-align: center;
-      animation: slideDown 0.3s ease;
-    }
-    
-    @keyframes slideDown {
-      from { opacity: 0; transform: translateY(-10px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-    
-    .comparison-badge {
-      display: inline-block;
-      background: var(--success);
-      color: white;
-      padding: 4px 10px;
-      border-radius: 12px;
-      font-size: 11px;
-      font-weight: 700;
-      margin-left: 8px;
-    }
-    
-    .comparison-badge.negative {
-          background: #FF8E8E;
-        }
-    
-        /* Auth styles */
-        .auth-container {
-          max-width: 400px;
-          margin: 100px auto;
-          padding: 32px;
-          background: var(--bg-secondary);
-          border-radius: 20px;
-          border: 2px solid var(--border);
-          box-shadow: 0 10px 40px var(--shadow-strong);
-        }
-    
-        .auth-title {
-          font-family: 'Poppins', sans-serif;
-          font-size: 32px;
-          font-weight: 800;
-          text-align: center;
-          margin-bottom: 8px;
-          background: linear-gradient(135deg, var(--accent) 0%, #FF8E8E 100%);
-          -webkit-background-clip: text;
-          -webkit-text-fill-color: transparent;
-        }
-    
-        .auth-subtitle {
-          text-align: center;
-          color: var(--text-secondary);
-          font-size: 14px;
-          margin-bottom: 32px;
-        }
-    
-        .auth-tabs {
-          display: flex;
-          gap: 8px;
-          margin-bottom: 24px;
-        }
-    
-        .auth-tab {
-          flex: 1;
-          padding: 12px;
-          background: var(--bg-tertiary);
-          border: 2px solid transparent;
-          color: var(--text-secondary);
-          font-weight: 600;
-          cursor: pointer;
-          border-radius: 12px;
-          transition: all 0.2s;
-          font-family: 'Poppins', sans-serif;
-        }
-    
-        .auth-tab.active {
-          background: var(--accent);
-          color: white;
-        }
-    
-        .auth-error {
-          background: #FFE8E0;
-          border: 2px solid var(--accent);
-          color: var(--accent);
-          padding: 12px;
-          border-radius: 10px;
-          margin-bottom: 16px;
-          font-size: 13px;
-          font-weight: 600;
-        }
-    
-        .auth-footer {
-          text-align: center;
-          margin-top: 24px;
-          font-size: 13px;
-          color: var(--text-secondary);
-        }
-    
-        .auth-link {
-          color: var(--accent);
-          font-weight: 600;
-          cursor: pointer;
-          text-decoration: underline;
-        }
-    
-        .logout-btn {
-          background: var(--bg-tertiary);
-          border: 2px solid var(--border);
-          color: var(--text-secondary);
-          padding: 8px 16px;
-          font-size: 12px;
-          font-weight: 600;
-          cursor: pointer;
-          border-radius: 20px;
-          transition: all 0.2s;
-          font-family: 'Poppins', sans-serif;
-        }
-    
-        .logout-btn:active {
-          background: var(--accent);
-          color: white;
-        }
-
-    /* ===== RESPONSIVE MOBILE ===== */
-
-    /* Tablettes et petits écrans */
-    @media (max-width: 768px) {
-      .content {
-        padding: 16px;
-      }
-
-      .header {
-        padding: 20px 16px;
-      }
-
-      .header h1 {
-        font-size: 28px;
-      }
-
-      .modal-content {
-        padding: 20px;
-        margin: 10px;
-      }
-
-      .modal-title {
-        font-size: 20px;
-      }
-    }
-
-    /* Mobile standard */
-    @media (max-width: 480px) {
-      .content {
-        padding: 12px;
-      }
-
-      .header {
-        padding: 16px 12px;
-      }
-
-      .header h1 {
-        font-size: 24px;
-      }
-
-      .header-subtitle {
-        font-size: 12px;
-      }
-
-      .nav-btn {
-        padding: 10px 14px;
-        font-size: 12px;
-      }
-
-      /* Tracker exercise card */
-      .tracker-exercise {
-        padding: 14px;
-      }
-
-      .tracker-title {
-        font-size: 17px;
-      }
-
-      /* Set row - disposition verticale sur mobile */
-      .set-row {
-        grid-template-columns: 40px 1fr 60px;
-        gap: 8px;
-      }
-
-      .set-label {
-        font-size: 12px;
-      }
-
-      .set-inputs {
-        gap: 6px;
-      }
-
-      /* Steppers plus petits */
-      .input-with-steppers {
-        gap: 3px;
-      }
-
-      .stepper-btn {
-        width: 28px;
-        height: 28px;
-        font-size: 12px;
-        border-radius: 6px;
-      }
-
-      .stepper-btn.double {
-        font-size: 10px;
-      }
-
-      .set-input {
-        padding: 8px 4px;
-        font-size: 14px;
-        min-width: 40px;
-      }
-
-      .set-done {
-        padding: 8px 4px;
-        font-size: 10px;
-      }
-
-      /* Boutons */
-      .btn {
-        padding: 14px 12px;
-        font-size: 14px;
-      }
-
-      .btn-small {
-        padding: 6px 10px;
-        font-size: 11px;
-      }
-
-      /* Cards */
-      .card {
-        padding: 16px;
-      }
-
-      .card-title {
-        font-size: 16px;
-      }
-
-      .card-actions {
-        flex-wrap: wrap;
-      }
-
-      .card-actions .btn {
-        flex: 1 1 calc(50% - 4px);
-        min-width: 0;
-      }
-
-      /* Exercise actions */
-      .exercise-actions {
-        flex-wrap: wrap;
-      }
-
-      .exercise-actions .btn-small {
-        flex: 1 1 calc(50% - 3px);
-        text-align: center;
-      }
-
-      /* Timer */
-      .rest-timer {
-        padding: 20px;
-      }
-
-      .rest-timer-time {
-        font-size: 48px;
-      }
-
-      /* History */
-      .history-stats {
-        gap: 8px;
-      }
-
-      .stat-badge {
-        padding: 4px 8px;
-        font-size: 11px;
-      }
-
-      /* Past performance */
-      .past-performance {
-        padding: 10px;
-      }
-
-      .past-performance-row {
-        font-size: 12px;
-        flex-wrap: wrap;
-        gap: 4px;
-      }
-
-      /* Workout nav buttons */
-      .workout-nav {
-        flex-wrap: wrap;
-      }
-
-      .workout-nav .btn {
-        flex: 1;
-        min-width: 100px;
-      }
-
-      /* Session buttons */
-      .session-buttons .btn {
-        font-size: 13px;
-        padding: 12px;
-      }
-
-      /* Modal */
-      .modal {
-        padding: 10px;
-      }
-
-      .modal-content {
-        padding: 16px;
-        margin-top: 10px;
-        border-radius: 16px;
-      }
-
-      .modal-title {
-        font-size: 18px;
-      }
-
-      .form-input, .form-select {
-        padding: 12px;
-        font-size: 14px;
-      }
-    }
-
-    /* Très petits écrans (iPhone SE, etc.) */
-    @media (max-width: 360px) {
-      .content {
-        padding: 10px;
-      }
-
-      .header h1 {
-        font-size: 22px;
-      }
-
-      .nav-btn {
-        padding: 8px 12px;
-        font-size: 11px;
-      }
-
-      /* Set row encore plus compact */
-      .set-row {
-        grid-template-columns: 35px 1fr 50px;
-        gap: 6px;
-      }
-
-      .set-label {
-        font-size: 11px;
-      }
-
-      /* Cacher les boutons double sur très petit écran */
-      .stepper-btn.double {
-        display: none;
-      }
-
-      .stepper-btn {
-        width: 26px;
-        height: 26px;
-        font-size: 11px;
-      }
-
-      .set-input {
-        padding: 6px 2px;
-        font-size: 13px;
-      }
-
-      .set-done {
-        padding: 6px 2px;
-        font-size: 9px;
-      }
-
-      .input-label {
-        font-size: 9px;
-      }
-
-      .tracker-title {
-        font-size: 15px;
-      }
-
-      .tracker-exercise {
-        padding: 12px;
-      }
-
-      .btn {
-        padding: 12px 10px;
-        font-size: 13px;
-      }
-
-      .btn-small {
-        padding: 5px 8px;
-        font-size: 10px;
-      }
-
-      .rest-timer-time {
-        font-size: 40px;
-      }
-
-      .card-actions .btn {
-        font-size: 12px;
-        padding: 10px 8px;
-      }
-
-      .exercise-item {
-        padding: 10px;
-      }
-
-      .exercise-name {
-        font-size: 14px;
-      }
-    }
-      </style>
+  <link rel="manifest"
+    href="data:application/json;base64,eyJuYW1lIjoiR3ltVHJhY2tlciIsInNob3J0X25hbWUiOiJHeW1UcmFja2VyIiwic3RhcnRfdXJsIjoiLiIsImRpc3BsYXkiOiJzdGFuZGFsb25lIiwiYmFja2dyb3VuZF9jb2xvciI6IiNGRkY1RjAiLCJ0aGVtZV9jb2xvciI6IiNGRjZCNkIiLCJpY29ucyI6W3sic3JjIjoiZGF0YTppbWFnZS9zdmcreG1sLCUzQ3N2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCAxMDAgMTAwJyUzRSUzQ3JlY3Qgd2lkdGg9JzEwMCcgaGVpZ2h0PScxMDAnIGZpbGw9JyUyM0ZGNkI2QicvJTNFJTNDdGV4dCB4PScyNSUyNScgeT0nNjUlMjUnIGZvbnQtc2l6ZT0nNjAnIGZpbGw9J3doaXRlJyBmb250LWZhbWlseT0nQXJpYWwlMkNzYW5zLXNlcmlmJyUzRUclM0MvdGV4dCUzRSUzQy9zdmclM0UiLCJzaXplcyI6IjE5MngxOTIiLCJ0eXBlIjoiaW1hZ2Uvc3ZnK3htbCJ9XX0=">
+  <link rel="stylesheet" href="css/styles.css">
 </head>
+
 <body>
   <div id="root"></div>
 
@@ -1318,12 +19,12 @@
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 
   <script type="text/babel">
-      const SUPABASE_URL = 'https://wvogkaailuwqojhljhmv.supabase.co';
-      const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind2b2drYWFpbHV3cW9qaGxqaG12Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njg1OTEwNzksImV4cCI6MjA4NDE2NzA3OX0.PfUsBawk-x3FWZL0BAe-_tRyveMUQor1bbYly5qIfQM';
-      
-      const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-      
-      const { useState, useEffect, useRef } = React;
+    const SUPABASE_URL = 'https://wvogkaailuwqojhljhmv.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind2b2drYWFpbHV3cW9qaGxqaG12Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njg1OTEwNzksImV4cCI6MjA4NDE2NzA3OX0.PfUsBawk-x3FWZL0BAe-_tRyveMUQor1bbYly5qIfQM';
+
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    const { useState, useEffect, useRef } = React;
 
     // Supabase utilities
     const db = {
@@ -1340,12 +41,12 @@
           `)
           .eq('user_id', userId)
           .order('created_at', { ascending: true });
-        
+
         if (error) {
           console.error('Error fetching programs:', error);
           return [];
         }
-        
+
         return data.map(p => ({
           id: p.id,
           name: p.name,
@@ -1366,47 +67,47 @@
           }))
         }));
       },
-    
+
       async addProgram(userId, name) {
         const { data, error } = await supabase
           .from('programs')
           .insert({ user_id: userId, name })
           .select()
           .single();
-        
+
         if (error) throw error;
         return data;
       },
-    
+
       async deleteProgram(programId) {
         const { error } = await supabase
           .from('programs')
           .delete()
           .eq('id', programId);
-        
+
         if (error) throw error;
       },
-    
+
       async addSession(programId, name) {
         const { data, error } = await supabase
           .from('sessions')
           .insert({ program_id: programId, name })
           .select()
           .single();
-        
+
         if (error) throw error;
         return data;
       },
-    
+
       async deleteSession(sessionId) {
         const { error } = await supabase
           .from('sessions')
           .delete()
           .eq('id', sessionId);
-        
+
         if (error) throw error;
       },
-    
+
       async addExercise(sessionId, exerciseData) {
         // Calculer la prochaine position
         const { data: existingExercises } = await supabase
@@ -1436,7 +137,7 @@
         if (error) throw error;
         return data;
       },
-    
+
       async updateExercise(exerciseId, exerciseData) {
         const { error } = await supabase
           .from('exercises')
@@ -1447,10 +148,10 @@
             notes: exerciseData.notes
           })
           .eq('id', exerciseId);
-        
+
         if (error) throw error;
       },
-    
+
       async deleteExercise(exerciseId) {
         const { error } = await supabase
           .from('exercises')
@@ -1480,12 +181,12 @@
           .select('*')
           .eq('user_id', userId)
           .order('completed_at', { ascending: false });
-        
+
         if (error) {
           console.error('Error fetching history:', error);
           return [];
         }
-        
+
         return data.map(w => ({
           id: w.id,
           programId: w.program_id,
@@ -1498,7 +199,7 @@
           duration: w.duration
         }));
       },
-    
+
       async addWorkoutHistory(userId, workout) {
         const { error } = await supabase
           .from('workout_history')
@@ -1513,29 +214,29 @@
             completed_at: new Date(workout.completedAt).toISOString(),
             duration: workout.duration
           });
-        
+
         if (error) throw error;
       },
-    
+
       async deleteWorkout(workoutId) {
         const { error } = await supabase
           .from('workout_history')
           .delete()
           .eq('id', workoutId);
-        
+
         if (error) throw error;
       },
-    
+
       async updateWorkout(workoutId, exercises) {
         const { error } = await supabase
           .from('workout_history')
           .update({ exercises })
           .eq('id', workoutId);
-        
+
         if (error) throw error;
       }
     };
-    
+
     // Auth utilities
     const auth = {
       async signUp(email, password) {
@@ -1543,31 +244,31 @@
           email,
           password
         });
-        
+
         if (error) throw error;
         return data;
       },
-    
+
       async signIn(email, password) {
         const { data, error } = await supabase.auth.signInWithPassword({
           email,
           password
         });
-        
+
         if (error) throw error;
         return data;
       },
-    
+
       async signOut() {
         const { error } = await supabase.auth.signOut();
         if (error) throw error;
       },
-    
+
       async getUser() {
         const { data: { user } } = await supabase.auth.getUser();
         return user;
       },
-    
+
       onAuthStateChange(callback) {
         return supabase.auth.onAuthStateChange(callback);
       }
@@ -1582,7 +283,7 @@
       const today = new Date();
       const yesterday = new Date(today);
       yesterday.setDate(yesterday.getDate() - 1);
-      
+
       if (date.toDateString() === today.toDateString()) {
         return `Aujourd'hui à ${date.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}`;
       } else if (date.toDateString() === yesterday.toDateString()) {
@@ -1637,14 +338,14 @@
           setUser(user);
           setLoading(false);
         });
-    
+
         const { data: subscription } = auth.onAuthStateChange((event, session) => {
           setUser(session?.user ?? null);
         });
-    
+
         return () => subscription?.subscription?.unsubscribe();
       }, []);
-    
+
       // Load data when user changes
       useEffect(() => {
         if (user) {
@@ -1654,16 +355,16 @@
           setWorkoutHistory([]);
         }
       }, [user]);
-    
+
       const loadData = async () => {
         if (!user) return;
-        
+
         try {
           const [programsData, historyData] = await Promise.all([
             db.getPrograms(user.id),
             db.getWorkoutHistory(user.id)
           ]);
-          
+
           setPrograms(programsData);
           setWorkoutHistory(historyData);
         } catch (error) {
@@ -1671,7 +372,7 @@
           alert('Erreur lors du chargement des données');
         }
       };
-    
+
       const openModal = (type, program = null, session = null, exercise = null, workout = null) => {
         setModalType(type);
         setCurrentProgram(program);
@@ -1680,7 +381,7 @@
         setCurrentWorkout(workout);
         setShowModal(true);
       };
-    
+
       const closeModal = () => {
         setShowModal(false);
         setModalType('');
@@ -1689,7 +390,7 @@
         setCurrentExercise(null);
         setCurrentWorkout(null);
       };
-    
+
       const addProgram = async (name) => {
         try {
           await db.addProgram(user.id, name);
@@ -1699,7 +400,7 @@
           alert('Erreur lors de la création du programme');
         }
       };
-    
+
       const deleteProgram = async (programId) => {
         if (confirm('Supprimer ce programme ?')) {
           try {
@@ -1710,7 +411,7 @@
           }
         }
       };
-    
+
       const addSession = async (programId, name) => {
         try {
           await db.addSession(programId, name);
@@ -1720,7 +421,7 @@
           alert('Erreur lors de la création de la séance');
         }
       };
-    
+
       const deleteSession = async (programId, sessionId) => {
         if (confirm('Supprimer cette séance ?')) {
           try {
@@ -1731,7 +432,7 @@
           }
         }
       };
-    
+
       const addExercise = async (programId, sessionId, exerciseData) => {
         try {
           await db.addExercise(sessionId, exerciseData);
@@ -1741,7 +442,7 @@
           alert('Erreur lors de la création de l\'exercice');
         }
       };
-    
+
       const editExercise = async (programId, sessionId, exerciseId, exerciseData) => {
         try {
           await db.updateExercise(exerciseId, exerciseData);
@@ -1751,7 +452,7 @@
           alert('Erreur lors de la modification');
         }
       };
-    
+
       const deleteExercise = async (programId, sessionId, exerciseId) => {
         if (confirm('Supprimer cet exercice ?')) {
           try {
@@ -1790,7 +491,7 @@
         setActiveWorkout(workout);
         setView('workout');
       };
-    
+
       const endWorkout = async (workout) => {
         const completedWorkout = {
           programId: workout.program.id,
@@ -1837,7 +538,7 @@
           }
         }
       };
-    
+
       const deleteHistoryExercise = async (workoutId, exerciseId) => {
         if (confirm('Supprimer cet exercice de l\'historique ?')) {
           try {
@@ -1850,7 +551,7 @@
           }
         }
       };
-    
+
       const editHistoryExercise = async (workoutId, exerciseId, updatedSets) => {
         try {
           const workout = workoutHistory.find(w => w.id === workoutId);
@@ -1864,7 +565,7 @@
           alert('Erreur lors de la modification');
         }
       };
-    
+
       if (loading) {
         return (
           <div className="app">
@@ -1875,52 +576,18 @@
           </div>
         );
       }
-    
+
       if (!user) {
         return <AuthScreen />;
       }
-    
+
       return (
         <div className="app">
           <header className="header">
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-              <div>
-                <h1>GymTracker</h1>
-                <div className="header-subtitle">Ton coach personnel 💪</div>
-              </div>
-              <button 
-                className="logout-btn"
-                onClick={async () => {
-                  if (confirm('Se déconnecter ?')) {
-                    await auth.signOut();
-                  }
-                }}
-              >
-                Déconnexion
-              </button>
-            </div>
-            <nav className="nav">
-              <button 
-                className={`nav-btn ${view === 'programs' ? 'active' : ''}`}
-                onClick={() => setView('programs')}
-              >
-                Programmes
-              </button>
-              <button 
-                className={`nav-btn ${view === 'workout' ? 'active' : ''}`}
-                onClick={() => setView('workout')}
-              >
-                Entraînement
-              </button>
-              <button 
-                className={`nav-btn ${view === 'history' ? 'active' : ''}`}
-                onClick={() => setView('history')}
-              >
-                Historique
-              </button>
-            </nav>
+            <h1>GymTracker</h1>
+            <div className="header-subtitle">Ton coach personnel 💪</div>
           </header>
-    
+
           <div className="content">
             {view === 'programs' && (
               <ProgramsView
@@ -1936,9 +603,9 @@
                 onStartWorkout={startWorkout}
               />
             )}
-    
+
             {view === 'workout' && (
-              <WorkoutView 
+              <WorkoutView
                 workout={activeWorkout}
                 workoutHistory={workoutHistory}
                 onUpdateWorkout={setActiveWorkout}
@@ -1946,9 +613,9 @@
                 onDiscardWorkout={discardWorkout}
               />
             )}
-    
+
             {view === 'history' && (
-              <HistoryView 
+              <HistoryView
                 history={workoutHistory}
                 programs={programs}
                 onDeleteWorkout={deleteWorkout}
@@ -1956,8 +623,46 @@
                 onEditExercise={(workout, exercise) => openModal('edit-history-exercise', null, null, exercise, workout)}
               />
             )}
+
+            {view === 'account' && (
+              <AccountView
+                user={user}
+                workoutHistory={workoutHistory}
+              />
+            )}
           </div>
-    
+
+          <nav className="bottom-nav">
+            <button
+              className={`nav-btn ${view === 'programs' ? 'active' : ''}`}
+              onClick={() => setView('programs')}
+            >
+              <span className="nav-btn-icon">📋</span>
+              Programmes
+            </button>
+            <button
+              className={`nav-btn ${view === 'workout' ? 'active' : ''}`}
+              onClick={() => setView('workout')}
+            >
+              <span className="nav-btn-icon">🏋️</span>
+              Entraînement
+            </button>
+            <button
+              className={`nav-btn ${view === 'history' ? 'active' : ''}`}
+              onClick={() => setView('history')}
+            >
+              <span className="nav-btn-icon">📊</span>
+              Historique
+            </button>
+            <button
+              className={`nav-btn ${view === 'account' ? 'active' : ''}`}
+              onClick={() => setView('account')}
+            >
+              <span className="nav-btn-icon">👤</span>
+              Compte
+            </button>
+          </nav>
+
           {showModal && (
             <Modal
               type={modalType}
@@ -1976,23 +681,71 @@
         </div>
       );
     }
-    
+
     const calculateDuration = (start, end) => {
       return Math.round((end - start) / 60000);
     };
-    
+
+    function AccountView({ user, workoutHistory }) {
+      // Calculate stats
+      const currentYear = new Date().getFullYear();
+      const workoutsThisYear = workoutHistory.filter(w => {
+        const workoutYear = new Date(w.startedAt).getFullYear();
+        return workoutYear === currentYear;
+      }).length;
+
+      const totalWorkouts = workoutHistory.length;
+
+      // Get user initial
+      const userInitial = user?.email?.charAt(0).toUpperCase() || '?';
+
+      return (
+        <div className="account-view">
+          <div className="account-header">
+            <div className="account-avatar">{userInitial}</div>
+            <div className="account-email">{user?.email}</div>
+          </div>
+
+          <div className="account-stats">
+            <div className="account-stat-card">
+              <div className="account-stat-value">{workoutsThisYear}</div>
+              <div className="account-stat-label">Séances {currentYear}</div>
+            </div>
+            <div className="account-stat-card">
+              <div className="account-stat-value">{totalWorkouts}</div>
+              <div className="account-stat-label">Total séances</div>
+            </div>
+          </div>
+
+          <div className="account-section">
+            <div className="account-section-title">Actions</div>
+            <button
+              className="btn btn-signout"
+              onClick={async () => {
+                if (confirm('Se déconnecter ?')) {
+                  await auth.signOut();
+                }
+              }}
+            >
+              Déconnexion
+            </button>
+          </div>
+        </div>
+      );
+    }
+
     function AuthScreen() {
       const [mode, setMode] = useState('login');
       const [email, setEmail] = useState('');
       const [password, setPassword] = useState('');
       const [error, setError] = useState('');
       const [loading, setLoading] = useState(false);
-    
+
       const handleSubmit = async (e) => {
         e.preventDefault();
         setError('');
         setLoading(true);
-    
+
         try {
           if (mode === 'login') {
             await auth.signIn(email, password);
@@ -2007,31 +760,31 @@
           setLoading(false);
         }
       };
-    
+
       return (
         <div className="auth-container">
           <h1 className="auth-title">GymTracker</h1>
           <div className="auth-subtitle">Ton coach personnel 💪</div>
-    
+
           <div className="auth-tabs">
-            <button 
+            <button
               className={`auth-tab ${mode === 'login' ? 'active' : ''}`}
               onClick={() => setMode('login')}
             >
               Connexion
             </button>
-            <button 
+            <button
               className={`auth-tab ${mode === 'signup' ? 'active' : ''}`}
               onClick={() => setMode('signup')}
             >
               Inscription
             </button>
           </div>
-    
+
           {error && (
             <div className="auth-error">{error}</div>
           )}
-    
+
           <form onSubmit={handleSubmit}>
             <div className="form-group">
               <label className="form-label">Email</label>
@@ -2044,7 +797,7 @@
                 autoFocus
               />
             </div>
-    
+
             <div className="form-group">
               <label className="form-label">Mot de passe</label>
               <input
@@ -2056,12 +809,12 @@
                 minLength="6"
               />
             </div>
-    
+
             <button type="submit" className="btn" disabled={loading}>
               {loading ? 'Chargement...' : mode === 'login' ? 'Se connecter' : 'Créer un compte'}
             </button>
           </form>
-    
+
           {mode === 'login' && (
             <div className="auth-footer">
               Pas encore de compte ?{' '}
@@ -2299,7 +1052,7 @@
                 <div style={{ marginTop: '16px' }}>
                   {program.sessions.map(session => (
                     <div key={session.id} style={{ marginBottom: '12px' }}>
-                      <div 
+                      <div
                         className="exercise-item"
                         onClick={() => setExpandedSession(expandedSession === session.id ? null : session.id)}
                       >
@@ -2387,13 +1140,13 @@
                   ))}
 
                   <div className="card-actions">
-                    <button 
+                    <button
                       className="btn btn-secondary"
                       onClick={() => onAddSession(program)}
                     >
                       + Nouvelle séance
                     </button>
-                    <button 
+                    <button
                       className="btn btn-delete"
                       onClick={() => onDeleteProgram(program.id)}
                     >
@@ -2472,14 +1225,14 @@
                 // This is the last performance
                 performances.push({ type: 'last', sets: completedSets });
               }
-              
+
               // Check for PRs
               completedSets.forEach((set, idx) => {
                 const weight = parseFloat(set.weight) || 0;
                 const reps = parseInt(set.reps) || 0;
-                
-                if (!prs[idx] || weight > (parseFloat(prs[idx].weight) || 0) || 
-                    (weight === parseFloat(prs[idx].weight) && reps > (parseInt(prs[idx].reps) || 0))) {
+
+                if (!prs[idx] || weight > (parseFloat(prs[idx].weight) || 0) ||
+                  (weight === parseFloat(prs[idx].weight) && reps > (parseInt(prs[idx].reps) || 0))) {
                   prs[idx] = set;
                   if (weight > maxWeight || (weight === maxWeight && reps > maxReps)) {
                     maxWeight = weight;
@@ -2528,17 +1281,17 @@
         const updated = { ...workout };
         const set = updated.exercises[currentExerciseIndex].sets[setIndex];
         set.completed = !set.completed;
-        
+
         if (set.completed && currentExercise.restTime) {
           setRestTimer(currentExercise.restTime);
-          
+
           // Check if PR
           const prSet = prSets[setIndex];
           if (prSet) {
             const isPR = parseFloat(set.weight) > parseFloat(prSet.weight) ||
-                        (parseFloat(set.weight) === parseFloat(prSet.weight) && 
-                         parseInt(set.reps) > parseInt(prSet.reps));
-            
+              (parseFloat(set.weight) === parseFloat(prSet.weight) &&
+                parseInt(set.reps) > parseInt(prSet.reps));
+
             if (isPR) {
               setShowSuccess(true);
               setTimeout(() => setShowSuccess(false), 3000);
@@ -2549,7 +1302,7 @@
             setTimeout(() => setShowSuccess(false), 3000);
           }
         }
-        
+
         onUpdateWorkout(updated);
       };
 
@@ -2561,15 +1314,15 @@
 
       const getComparison = (setIndex) => {
         if (!lastPerformance || !lastPerformance[setIndex]) return null;
-        
+
         const currentSet = currentExercise.sets[setIndex];
         const lastSet = lastPerformance[setIndex];
-        
+
         if (!currentSet.completed || !currentSet.reps || !currentSet.weight) return null;
-        
+
         const weightDiff = parseFloat(currentSet.weight) - parseFloat(lastSet.weight);
         const repsDiff = parseInt(currentSet.reps) - parseInt(lastSet.reps);
-        
+
         if (weightDiff > 0) {
           return { text: `+${weightDiff}kg`, positive: true };
         } else if (weightDiff === 0 && repsDiff > 0) {
@@ -2664,9 +1417,9 @@
             </div>
 
             {currentExercise.notes && (
-              <div style={{ 
-                background: 'var(--bg-tertiary)', 
-                padding: '12px', 
+              <div style={{
+                background: 'var(--bg-tertiary)',
+                padding: '12px',
                 borderRadius: '12px',
                 marginBottom: '16px',
                 fontSize: '13px',
@@ -2683,12 +1436,12 @@
                 {currentExercise.sets.map((_, idx) => {
                   const lastSet = lastPerformance?.[idx];
                   const prSet = prSets[idx];
-                  const isPR = lastSet && prSet && 
-                               parseFloat(lastSet.weight) === parseFloat(prSet.weight) &&
-                               parseInt(lastSet.reps) === parseInt(prSet.reps);
-                  
+                  const isPR = lastSet && prSet &&
+                    parseFloat(lastSet.weight) === parseFloat(prSet.weight) &&
+                    parseInt(lastSet.reps) === parseInt(prSet.reps);
+
                   if (!lastSet && !prSet) return null;
-                  
+
                   return (
                     <div key={idx} className="past-performance-row">
                       <span>
@@ -2729,15 +1482,15 @@
                       <div className="input-with-label">
                         <div className="input-label">Poids (kg)</div>
                         <div className="input-with-steppers">
-                          <button 
-                            className="stepper-btn double" 
+                          <button
+                            className="stepper-btn double"
                             onClick={() => adjustWeight(idx, -5)}
                             disabled={set.completed}
                           >
                             --
                           </button>
-                          <button 
-                            className="stepper-btn" 
+                          <button
+                            className="stepper-btn"
                             onClick={() => adjustWeight(idx, -2.5)}
                             disabled={set.completed}
                           >
@@ -2752,15 +1505,15 @@
                             onChange={(e) => updateSet(idx, 'weight', e.target.value)}
                             disabled={set.completed}
                           />
-                          <button 
-                            className="stepper-btn" 
+                          <button
+                            className="stepper-btn"
                             onClick={() => adjustWeight(idx, 2.5)}
                             disabled={set.completed}
                           >
                             +
                           </button>
-                          <button 
-                            className="stepper-btn double" 
+                          <button
+                            className="stepper-btn double"
                             onClick={() => adjustWeight(idx, 5)}
                             disabled={set.completed}
                           >
@@ -2813,7 +1566,7 @@
             </div>
             {workout.exercises.map((ex, idx) => (
               idx !== currentExerciseIndex && (
-                <div 
+                <div
                   key={idx}
                   className="exercise-item"
                   onClick={() => setCurrentExerciseIndex(idx)}
@@ -2851,8 +1604,8 @@
 
       const allExercises = getAllExercises();
 
-      const filteredHistory = filter === 'all' 
-        ? history 
+      const filteredHistory = filter === 'all'
+        ? history
         : history.filter(w => w.programId === filter);
 
       const getExerciseHistory = (exerciseName) => {
@@ -2872,7 +1625,7 @@
         const exerciseHistory = getExerciseHistory(exerciseName);
         let maxWeight = 0;
         let maxReps = 0;
-        
+
         exerciseHistory.forEach(({ sets }) => {
           sets.forEach(set => {
             const weight = parseFloat(set.weight) || 0;
@@ -2883,7 +1636,7 @@
             }
           });
         });
-        
+
         return maxWeight > 0 ? `${maxWeight}kg × ${maxReps}` : null;
       };
 
@@ -2901,13 +1654,13 @@
       return (
         <div className="view active">
           <div className="history-filters">
-            <button 
+            <button
               className={`filter-btn ${viewMode === 'sessions' ? 'active' : ''}`}
               onClick={() => setViewMode('sessions')}
             >
               📅 Séances
             </button>
-            <button 
+            <button
               className={`filter-btn ${viewMode === 'exercises' ? 'active' : ''}`}
               onClick={() => setViewMode('exercises')}
             >
@@ -2918,14 +1671,14 @@
           {viewMode === 'sessions' && (
             <>
               <div className="history-filters">
-                <button 
+                <button
                   className={`filter-btn ${filter === 'all' ? 'active' : ''}`}
                   onClick={() => setFilter('all')}
                 >
                   Tout
                 </button>
                 {programs.map(program => (
-                  <button 
+                  <button
                     key={program.id}
                     className={`filter-btn ${filter === program.id ? 'active' : ''}`}
                     onClick={() => setFilter(program.id)}
@@ -2938,7 +1691,7 @@
               {filteredHistory.map(workout => (
                 <div key={workout.id} className="history-card">
                   <div className="history-card-header">
-                    <div 
+                    <div
                       className="history-card-content"
                       onClick={() => setExpandedWorkout(expandedWorkout === workout.id ? null : workout.id)}
                     >
@@ -2950,7 +1703,7 @@
                       </div>
                     </div>
                     <div className="history-card-actions">
-                      <button 
+                      <button
                         className="icon-btn delete"
                         onClick={(e) => {
                           e.stopPropagation();
@@ -2972,7 +1725,7 @@
                             <div className="exercise-detail-header">
                               <div className="exercise-detail-title">{exercise.name}</div>
                               <div style={{ display: 'flex', gap: '6px' }}>
-                                <button 
+                                <button
                                   className="icon-btn"
                                   onClick={(e) => {
                                     e.stopPropagation();
@@ -2982,7 +1735,7 @@
                                 >
                                   ✏️
                                 </button>
-                                <button 
+                                <button
                                   className="icon-btn delete"
                                   onClick={(e) => {
                                     e.stopPropagation();
@@ -3017,7 +1770,7 @@
                 const exerciseHistory = getExerciseHistory(exerciseName);
                 const pr = getPersonalRecord(exerciseName);
                 const isExpanded = selectedExercise === exerciseName;
-                
+
                 return (
                   <div key={exerciseName} className="progression-card">
                     <div onClick={() => setSelectedExercise(isExpanded ? null : exerciseName)}>
@@ -3064,18 +1817,18 @@
       });
 
       const [historySets, setHistorySets] = useState(
-        Array.isArray(exercise?.sets) 
+        Array.isArray(exercise?.sets)
           ? exercise.sets.filter(s => s.completed).map((s, idx) => ({
-              index: idx,
-              reps: s.reps,
-              weight: s.weight
-            }))
+            index: idx,
+            reps: s.reps,
+            weight: s.weight
+          }))
           : []
       );
 
       const handleSubmit = (e) => {
         e.preventDefault();
-        
+
         if (type === 'program') {
           onAddProgram(formData.name);
         } else if (type === 'session') {
@@ -3107,7 +1860,7 @@
       };
 
       const updateHistorySet = (index, field, value) => {
-        setHistorySets(historySets.map(s => 
+        setHistorySets(historySets.map(s =>
           s.index === index ? { ...s, [field]: value } : s
         ));
       };
@@ -3173,8 +1926,8 @@
                       onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                       placeholder={
                         type === 'program' ? 'Ex: PPL Split' :
-                        type === 'session' ? 'Ex: Push' :
-                        'Ex: Développé Couché'
+                          type === 'session' ? 'Ex: Push' :
+                            'Ex: Développé Couché'
                       }
                       required
                       autoFocus
@@ -3238,9 +1991,10 @@
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
         navigator.serviceWorker.register('data:text/javascript;base64,c2VsZi5hZGRFdmVudExpc3RlbmVyKCdpbnN0YWxsJywgKCkgPT4gc2VsZi5za2lwV2FpdGluZygpKTs=')
-          .catch(() => {});
+          .catch(() => { });
       });
     }
   </script>
 </body>
+
 </html>
