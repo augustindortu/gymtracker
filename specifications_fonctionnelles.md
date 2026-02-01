@@ -20,6 +20,7 @@ gymtracker/
 │   └── styles.css          # Feuilles de styles
 ├── sql/
 │   ├── migration-position.sql   # Migration colonne position
+│   ├── migration-profiles.sql   # Migration table profiles
 │   └── rls-policies.sql         # Politiques Row Level Security
 ├── .gitignore
 ├── README.md
@@ -34,10 +35,21 @@ gymtracker/
 
 ```mermaid
 erDiagram
+    users ||--|| profiles : has
     users ||--o{ programs : owns
     users ||--o{ workout_history : owns
     programs ||--o{ sessions : contains
     sessions ||--o{ exercises : contains
+
+    profiles {
+        uuid id PK_FK
+        string first_name
+        string last_name
+        int height
+        decimal weight
+        timestamp created_at
+        timestamp updated_at
+    }
 
     programs {
         uuid id PK
@@ -79,6 +91,7 @@ erDiagram
 ### 2.2 Sécurité (Row Level Security)
 
 Chaque table est protégée par des politiques RLS garantissant l'isolation des données par utilisateur:
+- **profiles**: Accès direct via `id` (= `auth.uid()`)
 - **programs**: Accès direct via `user_id`
 - **sessions**: Accès via jointure `program_id → programs.user_id`
 - **exercises**: Accès via jointure `session_id → sessions.program_id → programs.user_id`
@@ -92,10 +105,20 @@ Chaque table est protégée par des politiques RLS garantissant l'isolation des 
 
 | Fonctionnalité | Description |
 |----------------|-------------|
-| **Inscription** | Email + mot de passe (min 6 caractères) |
+| **Inscription** | Email + mot de passe (min 6 caractères) + profil (prénom, nom, taille, poids) |
 | **Connexion** | Email + mot de passe |
 | **Déconnexion** | Bouton dans l'onglet Compte |
 | **Persistance** | Session automatique via Supabase Auth |
+
+#### Formulaire d'inscription
+| Champ | Type | Validation |
+|-------|------|------------|
+| Prénom | Texte | Obligatoire |
+| Nom | Texte | Obligatoire |
+| Taille | Nombre | 100-250 cm, obligatoire |
+| Poids | Nombre décimal | 30-300 kg, obligatoire |
+| Email | Email | Format email valide |
+| Mot de passe | Texte | Min 6 caractères |
 
 ### 3.2 Gestion des Programmes
 
@@ -251,11 +274,48 @@ Chaque table est protégée par des politiques RLS garantissant l'isolation des 
   - 👤 Compte
 
 ### 4.5 Vue Compte
-- Avatar avec initiale de l'email
-- Statistiques:
-  - Nombre de séances cette année
-  - Total des séances
-- Bouton de déconnexion
+
+La vue Compte est organisée en 3 blocs distincts de haut en bas:
+
+#### A. Bloc Motivation / Vue d'ensemble
+
+**Statistiques de la semaine courante** (lundi → dimanche):
+
+| Statistique | Icône | Description |
+|-------------|-------|-------------|
+| Entraînements | 🏋️ | Nombre de séances cette semaine (scorecard mise en avant) |
+| Volume total | 💪 | Somme de tous les kg × reps de la semaine |
+| Temps total | ⏱️ | Durée cumulée des entraînements de la semaine |
+
+**Graphique des 5 dernières semaines**:
+- Type: Barres verticales
+- Données: Nombre de séances par semaine
+- Période: Semaine courante + 4 semaines précédentes
+- Semaine: Lundi → Dimanche
+- Labels: Format "14-20 janv."
+- Barre courante mise en avant avec couleur accent
+
+#### B. Bloc Profil
+
+**Affichage**:
+- Avatar circulaire avec initiales (première lettre prénom + première lettre nom)
+- Prénom affiché en grand
+- Nom complet affiché en dessous
+- 📏 Taille: XX cm
+- ⚖️ Poids: XX kg
+
+**Fonctionnalité d'édition**:
+- Bouton "✏️ Modifier le profil"
+- Ouvre une modal avec formulaire éditable:
+  - Prénom (texte)
+  - Nom (texte)
+  - Taille (nombre en cm)
+  - Poids (nombre en kg avec décimales)
+- Boutons: "Annuler" / "Enregistrer"
+
+#### C. Actions
+
+- Bouton "Se déconnecter" en bas de page
 
 ---
 
@@ -300,10 +360,11 @@ flowchart TD
 > [!TIP]
 > Suggestions pour les futures versions
 
-- **Graphiques de progression**: Visualisation des courbes de performance
+- **Graphiques de progression par exercice**: Visualisation des courbes de poids/reps par exercice
 - **Templates d'exercices**: Bibliothèque prédéfinie
 - **Mode hors-ligne**: Sync différée avec Service Worker
 - **Export des données**: CSV/JSON
 - **Partage de programmes**: Liens publics
 - **Notifications push**: Rappels d'entraînement
 - **Minuteur personnalisable**: Ajustement rapide pendant l'entraînement
+- **Suivi du poids corporel**: Historique des pesées avec graphique
