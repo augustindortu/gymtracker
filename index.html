@@ -291,13 +291,13 @@
       async updateProfile(userId, profileData) {
         const { error } = await supabase
           .from('profiles')
-          .upsert({
-            id: userId,
+          .update({
             first_name: profileData.firstName,
             last_name: profileData.lastName,
             height: profileData.height,
             weight: profileData.weight
-          });
+          })
+          .eq('id', userId);
 
         if (error) throw error;
       },
