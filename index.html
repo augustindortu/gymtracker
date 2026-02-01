@@ -234,6 +234,142 @@
           .eq('id', workoutId);
 
         if (error) throw error;
+      },
+
+      // Profiles
+      async getProfile(userId) {
+        const { data, error } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', userId)
+          .single();
+
+        if (error && error.code !== 'PGRST116') {
+          console.error('Error fetching profile:', error);
+          return null;
+        }
+
+        return data;
+      },
+
+      async updateProfile(userId, profileData) {
+        const { error } = await supabase
+          .from('profiles')
+          .upsert({
+            id: userId,
+            first_name: profileData.firstName,
+            last_name: profileData.lastName,
+            height: profileData.height,
+            weight: profileData.weight
+          });
+
+        if (error) throw error;
+      },
+
+      // Stats pour la semaine courante
+      async getWeekStats(userId) {
+        // Calculer le début de la semaine (lundi)
+        const now = new Date();
+        const dayOfWeek = now.getDay();
+        const diff = dayOfWeek === 0 ? 6 : dayOfWeek - 1; // Ajuster pour que lundi = 0
+        const monday = new Date(now);
+        monday.setDate(now.getDate() - diff);
+        monday.setHours(0, 0, 0, 0);
+
+        const sunday = new Date(monday);
+        sunday.setDate(monday.getDate() + 6);
+        sunday.setHours(23, 59, 59, 999);
+
+        const { data, error } = await supabase
+          .from('workout_history')
+          .select('*')
+          .eq('user_id', userId)
+          .gte('completed_at', monday.toISOString())
+          .lte('completed_at', sunday.toISOString());
+
+        if (error) {
+          console.error('Error fetching week stats:', error);
+          return { workouts: 0, volume: 0, duration: 0 };
+        }
+
+        let totalVolume = 0;
+        let totalDuration = 0;
+
+        data.forEach(workout => {
+          totalDuration += workout.duration || 0;
+          workout.exercises?.forEach(exercise => {
+            exercise.sets?.forEach(set => {
+              if (set.completed) {
+                const weight = parseFloat(set.weight) || 0;
+                const reps = parseInt(set.reps) || 0;
+                totalVolume += weight * reps;
+              }
+            });
+          });
+        });
+
+        return {
+          workouts: data.length,
+          volume: Math.round(totalVolume),
+          duration: totalDuration
+        };
+      },
+
+      // Stats des 5 dernières semaines pour le graphique
+      async getWeeklyWorkouts(userId) {
+        const weeks = [];
+        const now = new Date();
+
+        // Calculer le début de la semaine courante (lundi)
+        const dayOfWeek = now.getDay();
+        const diff = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
+        const currentMonday = new Date(now);
+        currentMonday.setDate(now.getDate() - diff);
+        currentMonday.setHours(0, 0, 0, 0);
+
+        // Générer les 5 semaines (semaine courante + 4 précédentes)
+        for (let i = 4; i >= 0; i--) {
+          const weekStart = new Date(currentMonday);
+          weekStart.setDate(currentMonday.getDate() - (i * 7));
+
+          const weekEnd = new Date(weekStart);
+          weekEnd.setDate(weekStart.getDate() + 6);
+          weekEnd.setHours(23, 59, 59, 999);
+
+          // Format du label: "14-20 Jan" ou "S42"
+          const startDay = weekStart.getDate();
+          const endDay = weekEnd.getDate();
+          const month = weekStart.toLocaleDateString('fr-FR', { month: 'short' });
+          const label = `${startDay}-${endDay} ${month}`;
+
+          weeks.push({
+            start: weekStart.toISOString(),
+            end: weekEnd.toISOString(),
+            label
+          });
+        }
+
+        // Récupérer tous les workouts des 5 dernières semaines
+        const { data, error } = await supabase
+          .from('workout_history')
+          .select('completed_at')
+          .eq('user_id', userId)
+          .gte('completed_at', weeks[0].start)
+          .lte('completed_at', weeks[4].end);
+
+        if (error) {
+          console.error('Error fetching weekly workouts:', error);
+          return weeks.map(w => ({ ...w, count: 0 }));
+        }
+
+        // Compter les workouts par semaine
+        return weeks.map(week => {
+          const count = data.filter(workout => {
+            const completedAt = new Date(workout.completed_at);
+            return completedAt >= new Date(week.start) && completedAt <= new Date(week.end);
+          }).length;
+          return { ...week, count };
+        });
       }
     };
 
@@ -687,38 +823,176 @@
     };
 
     function AccountView({ user, workoutHistory }) {
-      // Calculate stats
-      const currentYear = new Date().getFullYear();
-      const workoutsThisYear = workoutHistory.filter(w => {
-        const workoutYear = new Date(w.startedAt).getFullYear();
-        return workoutYear === currentYear;
-      }).length;
+      const [profile, setProfile] = useState(null);
+      const [weekStats, setWeekStats] = useState({ workouts: 0, volume: 0, duration: 0 });
+      const [weeklyData, setWeeklyData] = useState([]);
+      const [showEditModal, setShowEditModal] = useState(false);
+      const [loading, setLoading] = useState(true);
 
-      const totalWorkouts = workoutHistory.length;
+      // Charger le profil et les statistiques
+      useEffect(() => {
+        const loadAccountData = async () => {
+          if (!user) return;
+          setLoading(true);
 
-      // Get user initial
-      const userInitial = user?.email?.charAt(0).toUpperCase() || '?';
+          try {
+            const [profileData, stats, weekly] = await Promise.all([
+              db.getProfile(user.id),
+              db.getWeekStats(user.id),
+              db.getWeeklyWorkouts(user.id)
+            ]);
+
+            setProfile(profileData);
+            setWeekStats(stats);
+            setWeeklyData(weekly);
+          } catch (error) {
+            console.error('Error loading account data:', error);
+          } finally {
+            setLoading(false);
+          }
+        };
+
+        loadAccountData();
+      }, [user]);
+
+      const handleUpdateProfile = async (updatedProfile) => {
+        try {
+          await db.updateProfile(user.id, updatedProfile);
+          setProfile({
+            ...profile,
+            first_name: updatedProfile.firstName,
+            last_name: updatedProfile.lastName,
+            height: updatedProfile.height,
+            weight: updatedProfile.weight
+          });
+          setShowEditModal(false);
+        } catch (error) {
+          alert('Erreur lors de la mise à jour du profil');
+        }
+      };
+
+      // Initiales pour l'avatar
+      const getInitials = () => {
+        if (profile?.first_name && profile?.last_name) {
+          return `${profile.first_name.charAt(0)}${profile.last_name.charAt(0)}`.toUpperCase();
+        }
+        return user?.email?.charAt(0).toUpperCase() || '?';
+      };
+
+      // Formater la durée en heures et minutes
+      const formatDuration = (minutes) => {
+        if (minutes < 60) return `${minutes} min`;
+        const hours = Math.floor(minutes / 60);
+        const mins = minutes % 60;
+        return mins > 0 ? `${hours}h ${mins}min` : `${hours}h`;
+      };
+
+      // Formater le volume (kg)
+      const formatVolume = (kg) => {
+        if (kg >= 1000) {
+          return `${(kg / 1000).toFixed(1)}t`;
+        }
+        return `${kg} kg`;
+      };
+
+      // Calculer la hauteur max pour le graphique
+      const maxWorkouts = Math.max(...weeklyData.map(w => w.count), 1);
+
+      if (loading) {
+        return (
+          <div className="account-view">
+            <div className="empty-state">
+              <div className="empty-icon">⏳</div>
+              <div className="empty-text">Chargement...</div>
+            </div>
+          </div>
+        );
+      }
 
       return (
         <div className="account-view">
-          <div className="account-header">
-            <div className="account-avatar">{userInitial}</div>
-            <div className="account-email">{user?.email}</div>
+          {/* Bloc Motivation - Statistiques de la semaine */}
+          <div className="motivation-block">
+            <div className="motivation-title">Cette semaine</div>
+            <div className="week-stats-grid">
+              <div className="week-stat-card highlight">
+                <div className="week-stat-icon">🏋️</div>
+                <div className="week-stat-value">{weekStats.workouts}</div>
+                <div className="week-stat-label">Entraînements</div>
+              </div>
+              <div className="week-stat-card">
+                <div className="week-stat-icon">💪</div>
+                <div className="week-stat-value">{formatVolume(weekStats.volume)}</div>
+                <div className="week-stat-label">Volume total</div>
+              </div>
+              <div className="week-stat-card">
+                <div className="week-stat-icon">⏱️</div>
+                <div className="week-stat-value">{formatDuration(weekStats.duration)}</div>
+                <div className="week-stat-label">Temps total</div>
+              </div>
+            </div>
+
+            {/* Graphique des 5 dernières semaines */}
+            <div className="weekly-chart">
+              <div className="chart-title">Séances par semaine</div>
+              <div className="chart-container">
+                {weeklyData.map((week, idx) => (
+                  <div key={idx} className="chart-bar-wrapper">
+                    <div className="chart-bar-value">{week.count}</div>
+                    <div
+                      className={`chart-bar ${idx === weeklyData.length - 1 ? 'current' : ''}`}
+                      style={{ height: `${(week.count / maxWorkouts) * 100}%`, minHeight: week.count > 0 ? '8px' : '4px' }}
+                    />
+                    <div className="chart-bar-label">{week.label}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
 
-          <div className="account-stats">
-            <div className="account-stat-card">
-              <div className="account-stat-value">{workoutsThisYear}</div>
-              <div className="account-stat-label">Séances {currentYear}</div>
+          {/* Bloc Profil */}
+          <div className="profile-block">
+            <div className="profile-header">
+              <div className="profile-avatar">{getInitials()}</div>
+              <div className="profile-info">
+                <div className="profile-name">
+                  {profile?.first_name || 'Utilisateur'}
+                </div>
+                <div className="profile-fullname">
+                  {profile?.first_name && profile?.last_name
+                    ? `${profile.first_name} ${profile.last_name}`
+                    : user?.email}
+                </div>
+              </div>
             </div>
-            <div className="account-stat-card">
-              <div className="account-stat-value">{totalWorkouts}</div>
-              <div className="account-stat-label">Total séances</div>
+
+            <div className="profile-details">
+              <div className="profile-detail">
+                <span className="profile-detail-icon">📏</span>
+                <span className="profile-detail-label">Taille</span>
+                <span className="profile-detail-value">
+                  {profile?.height ? `${profile.height} cm` : '—'}
+                </span>
+              </div>
+              <div className="profile-detail">
+                <span className="profile-detail-icon">⚖️</span>
+                <span className="profile-detail-label">Poids</span>
+                <span className="profile-detail-value">
+                  {profile?.weight ? `${profile.weight} kg` : '—'}
+                </span>
+              </div>
             </div>
+
+            <button
+              className="btn btn-secondary"
+              onClick={() => setShowEditModal(true)}
+            >
+              ✏️ Modifier le profil
+            </button>
           </div>
 
-          <div className="account-section">
-            <div className="account-section-title">Actions</div>
+          {/* Actions */}
+          <div className="account-actions">
             <button
               className="btn btn-signout"
               onClick={async () => {
@@ -727,8 +1001,114 @@
                 }
               }}
             >
-              Déconnexion
+              Se déconnecter
             </button>
+          </div>
+
+          {/* Modal d'édition du profil */}
+          {showEditModal && (
+            <ProfileEditModal
+              profile={profile}
+              onClose={() => setShowEditModal(false)}
+              onSave={handleUpdateProfile}
+            />
+          )}
+        </div>
+      );
+    }
+
+    function ProfileEditModal({ profile, onClose, onSave }) {
+      const [firstName, setFirstName] = useState(profile?.first_name || '');
+      const [lastName, setLastName] = useState(profile?.last_name || '');
+      const [height, setHeight] = useState(profile?.height?.toString() || '');
+      const [weight, setWeight] = useState(profile?.weight?.toString() || '');
+      const [saving, setSaving] = useState(false);
+
+      const handleSubmit = async (e) => {
+        e.preventDefault();
+        setSaving(true);
+
+        try {
+          await onSave({
+            firstName,
+            lastName,
+            height: parseInt(height) || null,
+            weight: parseFloat(weight) || null
+          });
+        } finally {
+          setSaving(false);
+        }
+      };
+
+      return (
+        <div className="modal active" onClick={onClose}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h2 className="modal-title">Modifier le profil</h2>
+              <button className="modal-close" onClick={onClose}>✕</button>
+            </div>
+
+            <form onSubmit={handleSubmit}>
+              <div className="form-row">
+                <div className="form-group">
+                  <label className="form-label">Prénom</label>
+                  <input
+                    type="text"
+                    className="form-input"
+                    value={firstName}
+                    onChange={(e) => setFirstName(e.target.value)}
+                    placeholder="Jean"
+                  />
+                </div>
+                <div className="form-group">
+                  <label className="form-label">Nom</label>
+                  <input
+                    type="text"
+                    className="form-input"
+                    value={lastName}
+                    onChange={(e) => setLastName(e.target.value)}
+                    placeholder="Dupont"
+                  />
+                </div>
+              </div>
+
+              <div className="form-row">
+                <div className="form-group">
+                  <label className="form-label">Taille (cm)</label>
+                  <input
+                    type="number"
+                    className="form-input"
+                    value={height}
+                    onChange={(e) => setHeight(e.target.value)}
+                    placeholder="175"
+                    min="100"
+                    max="250"
+                  />
+                </div>
+                <div className="form-group">
+                  <label className="form-label">Poids (kg)</label>
+                  <input
+                    type="number"
+                    step="0.1"
+                    className="form-input"
+                    value={weight}
+                    onChange={(e) => setWeight(e.target.value)}
+                    placeholder="70.5"
+                    min="30"
+                    max="300"
+                  />
+                </div>
+              </div>
+
+              <div className="modal-actions">
+                <button type="button" className="btn btn-secondary" onClick={onClose}>
+                  Annuler
+                </button>
+                <button type="submit" className="btn" disabled={saving}>
+                  {saving ? 'Enregistrement...' : 'Enregistrer'}
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       );
@@ -738,6 +1118,10 @@
       const [mode, setMode] = useState('login');
       const [email, setEmail] = useState('');
       const [password, setPassword] = useState('');
+      const [firstName, setFirstName] = useState('');
+      const [lastName, setLastName] = useState('');
+      const [height, setHeight] = useState('');
+      const [weight, setWeight] = useState('');
       const [error, setError] = useState('');
       const [loading, setLoading] = useState(false);
 
@@ -750,9 +1134,26 @@
           if (mode === 'login') {
             await auth.signIn(email, password);
           } else {
-            await auth.signUp(email, password);
+            // Inscription
+            const { user } = await auth.signUp(email, password);
+
+            // Créer le profil avec les informations personnelles
+            if (user) {
+              await db.updateProfile(user.id, {
+                firstName,
+                lastName,
+                height: parseInt(height) || null,
+                weight: parseFloat(weight) || null
+              });
+            }
+
             alert('Compte créé ! Vous pouvez maintenant vous connecter.');
             setMode('login');
+            // Reset form
+            setFirstName('');
+            setLastName('');
+            setHeight('');
+            setWeight('');
           }
         } catch (err) {
           setError(err.message || 'Une erreur est survenue');
@@ -786,6 +1187,65 @@
           )}
 
           <form onSubmit={handleSubmit}>
+            {mode === 'signup' && (
+              <>
+                <div className="form-row">
+                  <div className="form-group">
+                    <label className="form-label">Prénom</label>
+                    <input
+                      type="text"
+                      className="form-input"
+                      value={firstName}
+                      onChange={(e) => setFirstName(e.target.value)}
+                      placeholder="Jean"
+                      required
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label className="form-label">Nom</label>
+                    <input
+                      type="text"
+                      className="form-input"
+                      value={lastName}
+                      onChange={(e) => setLastName(e.target.value)}
+                      placeholder="Dupont"
+                      required
+                    />
+                  </div>
+                </div>
+
+                <div className="form-row">
+                  <div className="form-group">
+                    <label className="form-label">Taille (cm)</label>
+                    <input
+                      type="number"
+                      className="form-input"
+                      value={height}
+                      onChange={(e) => setHeight(e.target.value)}
+                      placeholder="175"
+                      min="100"
+                      max="250"
+                      required
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label className="form-label">Poids (kg)</label>
+                    <input
+                      type="number"
+                      step="0.1"
+                      className="form-input"
+                      value={weight}
+                      onChange={(e) => setWeight(e.target.value)}
+                      placeholder="70.5"
+                      min="30"
+                      max="300"
+                      required
+                    />
+                  </div>
+                </div>
+              </>
+            )}
+
             <div className="form-group">
               <label className="form-label">Email</label>
               <input
@@ -794,7 +1254,7 @@
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                autoFocus
+                autoFocus={mode === 'login'}
               />
             </div>
 
