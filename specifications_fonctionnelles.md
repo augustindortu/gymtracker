@@ -180,21 +180,22 @@ Chaque table est protégée par des politiques RLS garantissant l'isolation des 
 |  Programme → Séance            |
 |  Exercice 2/5                  |
 +--------------------------------+
-|  ⏱️ TEMPS DE REPOS: 45s        |
+|  [clock] TEMPS DE REPOS: 45s   |
 |  [Passer]                      |
 +--------------------------------+
-|  📝 Notes de l'exercice        |
+|  [file-text] Notes exercice    |
 +--------------------------------+
 |  PERFORMANCES PASSÉES          |
-|  S1: 10 × 60kg 🏆 PR           |
+|  S1: 10 × 60kg [trophy] PR     |
 |  S2: 8 × 60kg                  |
 +--------------------------------+
 |  S1  [Reps] [-- - 60kg + ++]   |
-|       [FAIT ✓]                 |
+|       [FAIT [check]]           |
 |  S2  [Reps] [-- - 60kg + ++]   |
-|       [FAIT ✓]                 |
+|       [FAIT [check]]           |
 +--------------------------------+
-|  [← Préc.]  [Suivant →]        |
+|  [[chevron-left] Préc.]        |
+|  [Suivant [chevron-right]]     |
 +--------------------------------+
 ```
 
@@ -203,33 +204,37 @@ Chaque table est protégée par des politiques RLS garantissant l'isolation des 
 |----------------|-------------|
 | **Steppers poids** | Boutons ±2.5kg et ±5kg |
 | **Auto-remplissage** | Valeurs de la dernière séance |
-| **Timer de repos** | Décompte automatique après validation |
+| **Timer de repos** | Décompte automatique après validation (fond vert success) |
 | **Vibration** | Alerte fin de repos (si supporté) |
 | **Skip timer** | Bouton pour passer le repos |
-| **Comparaison** | Badge +Xkg ou +X reps vs dernière fois |
-| **Détection PR** | Notification "🎉 Nouveau record personnel !" |
+| **Comparaison** | Badge +Xkg ou +X reps vs dernière fois (icône `arrow-up`) |
+| **Détection PR** | Notification avec icône `trophy` "Nouveau record personnel !" |
 
 #### Fin d'Entraînement
 - Modal avec 3 options:
-  - ✓ Enregistrer dans l'historique
-  - 🗑️ Supprimer sans enregistrer
+  - Icône `check` Enregistrer dans l'historique
+  - Icône `trash` Supprimer sans enregistrer
   - Continuer l'entraînement
 
 ### 3.6 Historique
 
+#### Filtres de vue
+- Bouton `calendar` "Séances" / Bouton `dumbbell` "Exercices"
+- Style: Pill buttons avec état actif (fond primary)
+
 #### Vue "Séances"
 - Liste chronologique (plus récent en premier)
-- Filtrage par programme
+- Filtrage par programme (boutons pill)
 - Pour chaque séance:
   - Date formatée (Aujourd'hui, Hier, ou date complète)
-  - Durée en minutes
-  - Nombre d'exercices
+  - Stat badge `clock` Durée en minutes
+  - Stat badge `dumbbell` Nombre d'exercices
   - Détail expansible avec séries réalisées
-  - Actions: supprimer la séance, modifier/supprimer un exercice
+  - Actions: bouton `trash` supprimer, bouton `edit` modifier
 
 #### Vue "Exercices"
 - Liste de tous les exercices effectués
-- Record personnel (PR) affiché
+- Record personnel (PR) affiché avec icône `trophy`
 - Nombre de séances pour chaque exercice
 - Détail expansible: 5 dernières performances
 
@@ -243,37 +248,77 @@ Chaque table est protégée par des politiques RLS garantissant l'isolation des 
 
 ## 4. Interface Utilisateur
 
-### 4.1 Design System
+### 4.1 Design System - "Clean & Functional"
+
+**Style**: Utilitaire et efficace, inspiré de "Strong" et "Hevy"
 
 | Variable CSS | Valeur | Usage |
 |--------------|--------|-------|
-| `--bg-primary` | #FFF5F0 | Fond principal |
-| `--bg-secondary` | #FFFFFF | Cartes, modals |
-| `--bg-tertiary` | #FFE8E0 | Éléments secondaires |
-| `--accent` | #FF6B6B | Couleur principale (corail) |
-| `--success` | #4ECDC4 | Timer, validations |
-| `--text-primary` | #2D2D2D | Texte principal |
-| `--text-secondary` | #8B8B8B | Texte secondaire |
+| `--bg-primary` | #FFFFFF | Fond principal (blanc pur) |
+| `--bg-secondary` | #F8F9FA | Sections et cartes |
+| `--bg-tertiary` | #F1F3F5 | Éléments secondaires |
+| `--primary` | #1E3A5F | Bleu profond (texte et éléments principaux) |
+| `--accent` | #FF6B35 | Orange (actions et mise en avant) |
+| `--accent-hover` | #E85A2A | Orange foncé (hover) |
+| `--accent-light` | #FFF0EB | Orange clair (fond de focus) |
+| `--success` | #10B981 | Timer, validations |
+| `--danger` | #EF4444 | Suppression, erreurs |
+| `--text-primary` | #1E3A5F | Texte principal |
+| `--text-secondary` | #6B7280 | Texte secondaire |
+| `--text-muted` | #9CA3AF | Texte désactivé/léger |
+| `--border` | #E5E7EB | Bordures fines |
+
+**Caractéristiques visuelles**:
+- Fond blanc pur avec sections grises très légères
+- Cartes avec bordures fines (1px) et coins moyens (10-18px)
+- Données mises en avant avec grands chiffres
+- Ombres subtiles (`box-shadow`) pour hiérarchie visuelle
 
 ### 4.2 Typographie
-- **Titres**: Poppins (600-800)
-- **Corps**: DM Sans (400-700)
+- **Police unique**: Plus Jakarta Sans (Google Fonts)
+- **Poids**: 400 (regular), 500 (medium), 600 (semi-bold), 700 (bold), 800 (extra-bold)
+- **Titres**: 20-28px, font-weight 800
+- **Corps**: 13-16px, font-weight 400-600
+- **Labels**: 10-12px, uppercase, letter-spacing 0.5px
 
-### 4.3 Responsive Design
+### 4.3 Icônes
+- **Bibliothèque**: Lucide Icons (SVG inline)
+- **Composant React**: `<Icon name="..." size={...} />`
+- **Tailles standards**:
+  - `icon-sm`: 16px (boutons, badges)
+  - `icon`: 20px (par défaut)
+  - `icon-lg`: 24px (navigation)
+  - `icon-xl`: 32-48px (empty states)
+- **Icônes principales**:
+  - `clipboard-list`: Programmes
+  - `dumbbell`: Entraînement/Exercices
+  - `bar-chart`: Historique
+  - `user`: Compte
+  - `trophy`: Records personnels
+  - `clock`: Temps/Durée
+  - `flame`: Volume
+  - `trash`: Suppression
+  - `edit`: Modification
+  - `play`: Démarrer
+  - `check`: Validation
+  - `x`: Fermer
+
+### 4.4 Responsive Design
 - **Mobile standard** (≤480px): Grid compact, steppers réduits
 - **Très petit écran** (≤360px): Steppers ±5 masqués, tailles réduites
 - **Tablette** (≤768px): Ajustements intermédiaires
 
-### 4.4 Navigation
-- Header sticky avec titre uniquement
-- Navigation fixe en bas de l'écran (bottom tab bar)
-- 4 onglets avec icônes:
-  - 📋 Programmes
-  - 🏋️ Entraînement
-  - 📊 Historique
-  - 👤 Compte
+### 4.5 Navigation
+- Header sticky avec titre "GymTracker" (font-weight 800, couleur primary)
+- Navigation fixe en bas (bottom tab bar) avec bordure supérieure fine
+- 4 onglets avec icônes Lucide SVG:
+  - `clipboard-list` Programmes
+  - `dumbbell` Entraînement
+  - `bar-chart` Historique
+  - `user` Compte
+- État actif: couleur accent (#FF6B35), stroke-width 2.5
 
-### 4.5 Vue Compte
+### 4.6 Vue Compte
 
 La vue Compte est organisée en 3 blocs distincts de haut en bas:
 
@@ -281,11 +326,11 @@ La vue Compte est organisée en 3 blocs distincts de haut en bas:
 
 **Statistiques de la semaine courante** (lundi → dimanche):
 
-| Statistique | Icône | Description |
-|-------------|-------|-------------|
-| Entraînements | 🏋️ | Nombre de séances cette semaine (scorecard mise en avant) |
-| Volume total | 💪 | Somme de tous les kg × reps de la semaine |
-| Temps total | ⏱️ | Durée cumulée des entraînements de la semaine |
+| Statistique | Icône Lucide | Description |
+|-------------|--------------|-------------|
+| Entraînements | `activity` | Nombre de séances cette semaine (scorecard mise en avant avec fond accent) |
+| Volume total | `flame` | Somme de tous les kg × reps de la semaine |
+| Temps total | `clock` | Durée cumulée des entraînements de la semaine |
 
 **Graphique des 5 dernières semaines**:
 - Type: Barres verticales
@@ -293,19 +338,19 @@ La vue Compte est organisée en 3 blocs distincts de haut en bas:
 - Période: Semaine courante + 4 semaines précédentes
 - Semaine: Lundi → Dimanche
 - Labels: Format "14-20 janv."
-- Barre courante mise en avant avec couleur accent
+- Barre courante mise en avant avec couleur accent (#FF6B35)
 
 #### B. Bloc Profil
 
 **Affichage**:
-- Avatar circulaire avec initiales (première lettre prénom + première lettre nom)
-- Prénom affiché en grand
-- Nom complet affiché en dessous
-- 📏 Taille: XX cm
-- ⚖️ Poids: XX kg
+- Avatar circulaire avec initiales (fond bleu profond #1E3A5F, texte blanc)
+- Prénom affiché en grand (font-weight 700)
+- Nom complet affiché en dessous (couleur secondaire)
+- `ruler` Taille: XX cm
+- `scale` Poids: XX kg
 
 **Fonctionnalité d'édition**:
-- Bouton "✏️ Modifier le profil"
+- Bouton avec icône `edit` "Modifier le profil"
 - Ouvre une modal avec formulaire éditable:
   - Prénom (texte)
   - Nom (texte)
@@ -315,7 +360,7 @@ La vue Compte est organisée en 3 blocs distincts de haut en bas:
 
 #### C. Actions
 
-- Bouton "Se déconnecter" en bas de page
+- Bouton avec icône `log-out` "Se déconnecter" (style outline danger)
 
 ---
 

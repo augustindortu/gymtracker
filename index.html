@@ -26,6 +26,42 @@
 
     const { useState, useEffect, useRef } = React;
 
+    // Lucide Icons as React components
+    const Icon = ({ name, size = 20, className = '' }) => {
+      const icons = {
+        'clipboard-list': <svg className={`icon ${className}`} width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="8" height="4" x="8" y="2" rx="1" ry="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="M12 11h4"/><path d="M12 16h4"/><path d="M8 11h.01"/><path d="M8 16h.01"/></svg>,
+        'dumbbell': <svg className={`icon ${className}`} width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14.4 14.4 9.6 9.6"/><path d="M18.657 21.485a2 2 0 1 1-2.829-2.828l-1.767 1.768a2 2 0 1 1-2.829-2.829l6.364-6.364a2 2 0 1 1 2.829 2.829l-1.768 1.767a2 2 0 1 1 2.828 2.829z"/><path d="m21.5 21.5-1.4-1.4"/><path d="M3.9 3.9 2.5 2.5"/><path d="M6.404 12.768a2 2 0 1 1-2.829-2.829l1.768-1.767a2 2 0 1 1-2.828-2.829l2.828-2.828a2 2 0 1 1 2.829 2.828l1.767-1.768a2 2 0 1 1 2.829 2.829z"/></svg>,
+        'bar-chart': <svg className={`icon ${className}`} width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="12" x2="12" y1="20" y2="10"/><line x1="18" x2="18" y1="20" y2="4"/><line x1="6" x2="6" y1="20" y2="16"/></svg>,
+        'user': <svg className={`icon ${className}`} width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>,
+        'activity': <svg className={`icon ${className}`} width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 12h-2.48a2 2 0 0 0-1.93 1.46l-2.35 8.36a.25.25 0 0 1-.48 0L9.24 2.18a.25.25 0 0 0-.48 0l-2.35 8.36A2 2 0 0 1 4.49 12H2"/></svg>,
+        'flame': <svg className={`icon ${className}`} width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg>,
+        'clock': <svg className={`icon ${className}`} width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>,
+        'plus': <svg className={`icon ${className}`} width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14"/><path d="M12 5v14"/></svg>,
+        'trash': <svg className={`icon ${className}`} width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>,
+        'edit': <svg className={`icon ${className}`} width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/><path d="m15 5 4 4"/></svg>,
+        'check': <svg className={`icon ${className}`} width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6 9 17l-5-5"/></svg>,
+        'x': <svg className={`icon ${className}`} width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>,
+        'chevron-left': <svg className={`icon ${className}`} width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6"/></svg>,
+        'chevron-right': <svg className={`icon ${className}`} width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m9 18 6-6-6-6"/></svg>,
+        'ruler': <svg className={`icon ${className}`} width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21.3 15.3a2.4 2.4 0 0 1 0 3.4l-2.6 2.6a2.4 2.4 0 0 1-3.4 0L2.7 8.7a2.41 2.41 0 0 1 0-3.4l2.6-2.6a2.41 2.41 0 0 1 3.4 0Z"/><path d="m14.5 12.5 2-2"/><path d="m11.5 9.5 2-2"/><path d="m8.5 6.5 2-2"/><path d="m17.5 15.5 2-2"/></svg>,
+        'scale': <svg className={`icon ${className}`} width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m16 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/><path d="m2 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/><path d="M7 21h10"/><path d="M12 3v18"/><path d="M3 7h2c2 0 5-1 7-2 2 1 5 2 7 2h2"/></svg>,
+        'log-out': <svg className={`icon ${className}`} width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" x2="9" y1="12" y2="12"/></svg>,
+        'play': <svg className={`icon ${className}`} width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="6 3 20 12 6 21 6 3"/></svg>,
+        'trophy': <svg className={`icon ${className}`} width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>,
+        'calendar': <svg className={`icon ${className}`} width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M8 2v4"/><path d="M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/></svg>,
+        'loader': <svg className={`icon ${className}`} width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2v4"/><path d="m16.2 7.8 2.9-2.9"/><path d="M18 12h4"/><path d="m16.2 16.2 2.9 2.9"/><path d="M12 18v4"/><path d="m4.9 19.1 2.9-2.9"/><path d="M2 12h4"/><path d="m4.9 4.9 2.9 2.9"/></svg>,
+        'target': <svg className={`icon ${className}`} width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>,
+        'zap': <svg className={`icon ${className}`} width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z"/></svg>,
+        'timer': <svg className={`icon ${className}`} width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="10" x2="14" y1="2" y2="2"/><line x1="12" x2="15" y1="14" y2="11"/><circle cx="12" cy="14" r="8"/></svg>,
+        'arrow-up': <svg className={`icon ${className}`} width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m5 12 7-7 7 7"/><path d="M12 19V5"/></svg>,
+        'arrow-down': <svg className={`icon ${className}`} width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 5v14"/><path d="m19 12-7 7-7-7"/></svg>,
+        'history': <svg className={`icon ${className}`} width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M12 7v5l4 2"/></svg>,
+        'file-text': <svg className={`icon ${className}`} width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M10 9H8"/><path d="M16 13H8"/><path d="M16 17H8"/></svg>,
+        'weight': <svg className={`icon ${className}`} width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="5" r="3"/><path d="M6.5 8a2 2 0 0 0-1.905 1.46L2.1 18.5A2 2 0 0 0 4 21h16a2 2 0 0 0 1.925-2.54L19.4 9.5A2 2 0 0 0 17.48 8Z"/></svg>,
+      };
+      return icons[name] || null;
+    };
+
     // Supabase utilities
     const db = {
       // Programmes
@@ -706,7 +742,7 @@
         return (
           <div className="app">
             <div className="empty-state">
-              <div className="empty-icon">⏳</div>
+              <div className="empty-icon"><Icon name="loader" size={48} /></div>
               <div className="empty-text">Chargement...</div>
             </div>
           </div>
@@ -721,7 +757,7 @@
         <div className="app">
           <header className="header">
             <h1>GymTracker</h1>
-            <div className="header-subtitle">Ton coach personnel 💪</div>
+            <div className="header-subtitle"><Icon name="target" size={14} /> Ton coach personnel</div>
           </header>
 
           <div className="content">
@@ -773,28 +809,28 @@
               className={`nav-btn ${view === 'programs' ? 'active' : ''}`}
               onClick={() => setView('programs')}
             >
-              <span className="nav-btn-icon">📋</span>
+              <Icon name="clipboard-list" size={22} />
               Programmes
             </button>
             <button
               className={`nav-btn ${view === 'workout' ? 'active' : ''}`}
               onClick={() => setView('workout')}
             >
-              <span className="nav-btn-icon">🏋️</span>
+              <Icon name="dumbbell" size={22} />
               Entraînement
             </button>
             <button
               className={`nav-btn ${view === 'history' ? 'active' : ''}`}
               onClick={() => setView('history')}
             >
-              <span className="nav-btn-icon">📊</span>
+              <Icon name="bar-chart" size={22} />
               Historique
             </button>
             <button
               className={`nav-btn ${view === 'account' ? 'active' : ''}`}
               onClick={() => setView('account')}
             >
-              <span className="nav-btn-icon">👤</span>
+              <Icon name="user" size={22} />
               Compte
             </button>
           </nav>
@@ -902,7 +938,7 @@
         return (
           <div className="account-view">
             <div className="empty-state">
-              <div className="empty-icon">⏳</div>
+              <div className="empty-icon"><Icon name="loader" size={48} /></div>
               <div className="empty-text">Chargement...</div>
             </div>
           </div>
@@ -913,20 +949,20 @@
         <div className="account-view">
           {/* Bloc Motivation - Statistiques de la semaine */}
           <div className="motivation-block">
-            <div className="motivation-title">Cette semaine</div>
+            <div className="motivation-title"><Icon name="calendar" size={18} /> Cette semaine</div>
             <div className="week-stats-grid">
               <div className="week-stat-card highlight">
-                <div className="week-stat-icon">🏋️</div>
+                <div className="week-stat-icon"><Icon name="activity" size={20} /></div>
                 <div className="week-stat-value">{weekStats.workouts}</div>
                 <div className="week-stat-label">Entraînements</div>
               </div>
               <div className="week-stat-card">
-                <div className="week-stat-icon">💪</div>
+                <div className="week-stat-icon"><Icon name="flame" size={20} /></div>
                 <div className="week-stat-value">{formatVolume(weekStats.volume)}</div>
                 <div className="week-stat-label">Volume total</div>
               </div>
               <div className="week-stat-card">
-                <div className="week-stat-icon">⏱️</div>
+                <div className="week-stat-icon"><Icon name="clock" size={20} /></div>
                 <div className="week-stat-value">{formatDuration(weekStats.duration)}</div>
                 <div className="week-stat-label">Temps total</div>
               </div>
@@ -968,14 +1004,14 @@
 
             <div className="profile-details">
               <div className="profile-detail">
-                <span className="profile-detail-icon">📏</span>
+                <span className="profile-detail-icon"><Icon name="ruler" size={18} /></span>
                 <span className="profile-detail-label">Taille</span>
                 <span className="profile-detail-value">
                   {profile?.height ? `${profile.height} cm` : '—'}
                 </span>
               </div>
               <div className="profile-detail">
-                <span className="profile-detail-icon">⚖️</span>
+                <span className="profile-detail-icon"><Icon name="scale" size={18} /></span>
                 <span className="profile-detail-label">Poids</span>
                 <span className="profile-detail-value">
                   {profile?.weight ? `${profile.weight} kg` : '—'}
@@ -987,7 +1023,7 @@
               className="btn btn-secondary"
               onClick={() => setShowEditModal(true)}
             >
-              ✏️ Modifier le profil
+              <Icon name="edit" size={16} /> Modifier le profil
             </button>
           </div>
 
@@ -1001,7 +1037,7 @@
                 }
               }}
             >
-              Se déconnecter
+              <Icon name="log-out" size={16} /> Se déconnecter
             </button>
           </div>
 
@@ -1045,7 +1081,7 @@
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
             <div className="modal-header">
               <h2 className="modal-title">Modifier le profil</h2>
-              <button className="modal-close" onClick={onClose}>✕</button>
+              <button className="modal-close" onClick={onClose}><Icon name="x" size={20} /></button>
             </div>
 
             <form onSubmit={handleSubmit}>
@@ -1165,7 +1201,7 @@
       return (
         <div className="auth-container">
           <h1 className="auth-title">GymTracker</h1>
-          <div className="auth-subtitle">Ton coach personnel 💪</div>
+          <div className="auth-subtitle">Ton coach personnel <Icon name="dumbbell" size={16} /></div>
 
           <div className="auth-tabs">
             <button
@@ -1487,7 +1523,7 @@
         return (
           <div className="view active">
             <div className="empty-state">
-              <div className="empty-icon">💪</div>
+              <div className="empty-icon"><Icon name="dumbbell" size={48} /></div>
               <div className="empty-text">Crée ton premier programme !</div>
             </div>
             <button className="btn" onClick={onAddProgram}>
@@ -1585,7 +1621,7 @@
                               className="btn"
                               onClick={() => onStartWorkout(program, session)}
                             >
-                              🏋️ Démarrer cette séance
+                              <Icon name="play" size={16} /> Démarrer cette séance
                             </button>
                             <button
                               className="btn btn-delete"
@@ -1659,7 +1695,7 @@
         return (
           <div className="view active">
             <div className="empty-state">
-              <div className="empty-icon">🏋️</div>
+              <div className="empty-icon"><Icon name="dumbbell" size={48} /></div>
               <div className="empty-text">Sélectionne une séance pour commencer</div>
             </div>
           </div>
@@ -1817,7 +1853,7 @@
               <div className="modal-content" onClick={(e) => e.stopPropagation()}>
                 <div className="modal-header">
                   <h2 className="modal-title">Terminer l'entraînement ?</h2>
-                  <button className="modal-close" onClick={() => setShowEndModal(false)}>✕</button>
+                  <button className="modal-close" onClick={() => setShowEndModal(false)}><Icon name="x" size={20} /></button>
                 </div>
                 <p style={{ marginBottom: '20px', color: 'var(--text-secondary)' }}>
                   Que souhaitez-vous faire avec cet entraînement ?
@@ -1839,7 +1875,7 @@
                       onDiscardWorkout();
                     }}
                   >
-                    🗑️ Supprimer sans enregistrer
+                    <Icon name="trash" size={16} /> Supprimer sans enregistrer
                   </button>
                   <button
                     className="btn btn-secondary"
@@ -1854,7 +1890,7 @@
 
           {showSuccess && (
             <div className="success-message">
-              🎉 Nouveau record personnel !
+              <Icon name="trophy" size={20} /> Nouveau record personnel !
             </div>
           )}
 
@@ -1886,7 +1922,7 @@
                 fontStyle: 'italic',
                 color: 'var(--text-secondary)'
               }}>
-                📝 {currentExercise.notes}
+                <Icon name="file-text" size={14} /> {currentExercise.notes}
               </div>
             )}
 
@@ -1908,7 +1944,7 @@
                         S{idx + 1}: {lastSet ? `${lastSet.reps} × ${lastSet.weight}kg` : '-'}
                       </span>
                       {isPR ? (
-                        <span className="pr-badge">🏆 PR</span>
+                        <span className="pr-badge"><Icon name="trophy" size={12} /> PR</span>
                       ) : prSet && lastSet && (parseFloat(prSet.weight) !== parseFloat(lastSet.weight) || parseInt(prSet.reps) !== parseInt(lastSet.reps)) ? (
                         <span style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>
                           Record: {prSet.reps} × {prSet.weight}kg
@@ -2104,7 +2140,7 @@
         return (
           <div className="view active">
             <div className="empty-state">
-              <div className="empty-icon">📊</div>
+              <div className="empty-icon"><Icon name="bar-chart" size={48} /></div>
               <div className="empty-text">Aucun entraînement enregistré</div>
             </div>
           </div>
@@ -2118,13 +2154,13 @@
               className={`filter-btn ${viewMode === 'sessions' ? 'active' : ''}`}
               onClick={() => setViewMode('sessions')}
             >
-              📅 Séances
+              <Icon name="calendar" size={16} /> Séances
             </button>
             <button
               className={`filter-btn ${viewMode === 'exercises' ? 'active' : ''}`}
               onClick={() => setViewMode('exercises')}
             >
-              🏋️ Exercices
+              <Icon name="dumbbell" size={16} /> Exercices
             </button>
           </div>
 
@@ -2158,8 +2194,8 @@
                       <div className="history-date">{formatDate(workout.completedAt)}</div>
                       <div className="history-title">{workout.sessionName}</div>
                       <div className="history-stats">
-                        <div className="stat-badge">⏱️ {workout.duration} min</div>
-                        <div className="stat-badge">💪 {workout.exercises.length} exercices</div>
+                        <div className="stat-badge"><Icon name="clock" size={14} /> {workout.duration} min</div>
+                        <div className="stat-badge"><Icon name="dumbbell" size={14} /> {workout.exercises.length} exercices</div>
                       </div>
                     </div>
                     <div className="history-card-actions">
@@ -2171,7 +2207,7 @@
                         }}
                         title="Supprimer la séance"
                       >
-                        🗑️
+                        <Icon name="trash" size={16} />
                       </button>
                     </div>
                   </div>
@@ -2193,7 +2229,7 @@
                                   }}
                                   title="Modifier"
                                 >
-                                  ✏️
+                                  <Icon name="edit" size={16} />
                                 </button>
                                 <button
                                   className="icon-btn delete"
@@ -2203,7 +2239,7 @@
                                   }}
                                   title="Supprimer"
                                 >
-                                  🗑️
+                                  <Icon name="trash" size={16} />
                                 </button>
                               </div>
                             </div>
@@ -2336,7 +2372,7 @@
                 {type === 'edit-exercise' && 'Modifier Exercice'}
                 {type === 'edit-history-exercise' && 'Modifier Performance'}
               </h2>
-              <button className="modal-close" onClick={onClose}>✕</button>
+              <button className="modal-close" onClick={onClose}><Icon name="x" size={20} /></button>
             </div>
 
             <form onSubmit={handleSubmit}>
