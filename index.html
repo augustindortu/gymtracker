@@ -691,9 +691,10 @@
           return;
         }
 
-        // Toujours revenir à l'écran principal, même si loadData échoue
-        setActiveWorkout(null);
+        // Change view FIRST to unmount WorkoutView before clearing workout data
+        // This prevents render with workout=null while view='workout'
         setView('programs');
+        setActiveWorkout(null);
 
         try {
           await loadData();
@@ -703,8 +704,8 @@
       };
 
       const discardWorkout = () => {
-        setActiveWorkout(null);
         setView('programs');
+        setActiveWorkout(null);
       };
 
       const deleteWorkout = async (workoutId) => {
@@ -2502,7 +2503,9 @@
       );
     }
 
-    ReactDOM.render(<App />, document.getElementById('root'));
+    // Use createRoot for React 18 automatic batching (fixes setState race conditions)
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(<App />);
 
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
