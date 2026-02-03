@@ -289,24 +289,20 @@
       },
 
       async updateProfile(userId, profileData) {
-        const { data, error } = await supabase
+        const { error } = await supabase
           .from('profiles')
-          .upsert({
-            id: userId,
+          .update({
             first_name: profileData.firstName,
             last_name: profileData.lastName,
             height: profileData.height,
             weight: profileData.weight
-          }, {
-            onConflict: 'id'
           })
-          .select();
+          .eq('id', userId);
 
         if (error) {
           console.error('Profile update error:', error);
           throw error;
         }
-        return data;
       },
 
       // Stats pour la semaine courante
