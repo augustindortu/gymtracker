@@ -104,7 +104,7 @@ Chaque table est protégée par des politiques RLS garantissant l'isolation des 
 ```sql
 CREATE TABLE profiles (
     id UUID PRIMARY KEY REFERENCES auth.users(id),
-    email TEXT,
+    email TEXT NOT NULL,
     first_name TEXT,
     last_name TEXT,
     height INTEGER,
@@ -154,30 +154,29 @@ Un trigger `handle_new_user` crée automatiquement un profil vide lors de l'insc
 
 #### Méthode de mise à jour (JavaScript)
 
-La fonction `db.updateProfile()` utilise `upsert` avec `onConflict: 'id'` pour gérer les cas où le profil n'existe pas encore :
+La fonction `db.updateProfile()` utilise `update` car le profil est créé automatiquement par le trigger `handle_new_user` lors de l'inscription :
 
 ```javascript
 async updateProfile(userId, profileData) {
-    const { data, error } = await supabase
+    const { error } = await supabase
         .from('profiles')
-        .upsert({
-            id: userId,
+        .update({
+            email: profileData.email,
             first_name: profileData.firstName,
             last_name: profileData.lastName,
             height: profileData.height,
             weight: profileData.weight
-        }, {
-            onConflict: 'id'
         })
-        .select();
+        .eq('id', userId);
 
     if (error) {
         console.error('Profile update error:', error);
         throw error;
     }
-    return data;
 }
 ```
+
+**Important** : L'email doit être inclus car la colonne a une contrainte NOT NULL.
 
 ---
 
