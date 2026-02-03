@@ -289,17 +289,24 @@
       },
 
       async updateProfile(userId, profileData) {
-        const { error } = await supabase
+        const { data, error } = await supabase
           .from('profiles')
-          .update({
+          .upsert({
+            id: userId,
             first_name: profileData.firstName,
             last_name: profileData.lastName,
             height: profileData.height,
             weight: profileData.weight
+          }, {
+            onConflict: 'id'
           })
-          .eq('id', userId);
+          .select();
 
-        if (error) throw error;
+        if (error) {
+          console.error('Profile update error:', error);
+          throw error;
+        }
+        return data;
       },
 
       // Stats pour la semaine courante
@@ -1668,6 +1675,13 @@
       const [showSuccess, setShowSuccess] = useState(false);
       const [showEndModal, setShowEndModal] = useState(false);
       const timerRef = useRef(null);
+      const isMountedRef = useRef(true);
+
+      // Track mounted state to prevent setState on unmounted component
+      useEffect(() => {
+        isMountedRef.current = true;
+        return () => { isMountedRef.current = false; };
+      }, []);
 
       useEffect(() => {
         if (restTimer !== null) {
@@ -1675,6 +1689,12 @@
           const endTime = startTime + restTimer * 1000;
 
           timerRef.current = setInterval(() => {
+            // Prevent setState if component is unmounting
+            if (!isMountedRef.current) {
+              clearInterval(timerRef.current);
+              return;
+            }
+
             const remaining = Math.max(0, Math.ceil((endTime - Date.now()) / 1000));
             setRestRemaining(remaining);
 
