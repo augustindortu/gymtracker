@@ -496,7 +496,17 @@
         // Charger l'entraînement en cours depuis localStorage au démarrage
         try {
           const saved = localStorage.getItem('gymtracker_active_workout');
-          return saved ? JSON.parse(saved) : null;
+          if (!saved) return null;
+
+          const workout = JSON.parse(saved);
+
+          // Si l'entraînement date de plus de 6h, réinitialiser startedAt
+          const sixHoursMs = 6 * 60 * 60 * 1000;
+          if (workout.startedAt && (Date.now() - workout.startedAt) > sixHoursMs) {
+            workout.startedAt = Date.now();
+          }
+
+          return workout;
         } catch (e) {
           return null;
         }
