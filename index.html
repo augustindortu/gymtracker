@@ -292,6 +292,7 @@
         const { error } = await supabase
           .from('profiles')
           .update({
+            email: profileData.email,
             first_name: profileData.firstName,
             last_name: profileData.lastName,
             height: profileData.height,
@@ -907,7 +908,7 @@
 
       const handleUpdateProfile = async (updatedProfile) => {
         try {
-          await db.updateProfile(user.id, updatedProfile);
+          await db.updateProfile(user.id, { ...updatedProfile, email: user.email });
           setProfile({
             ...profile,
             first_name: updatedProfile.firstName,
@@ -1190,6 +1191,7 @@
             // Créer le profil avec les informations personnelles
             if (user) {
               await db.updateProfile(user.id, {
+                email,
                 firstName,
                 lastName,
                 height: parseInt(height) || null,
