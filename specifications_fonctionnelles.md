@@ -97,6 +97,88 @@ Chaque table est protégée par des politiques RLS garantissant l'isolation des 
 - **exercises**: Accès via jointure `session_id → sessions.program_id → programs.user_id`
 - **workout_history**: Accès direct via `user_id`
 
+### 2.3 Table Profiles - Détails d'implémentation
+
+#### Colonnes requises
+
+```sql
+CREATE TABLE profiles (
+    id UUID PRIMARY KEY REFERENCES auth.users(id),
+    email TEXT,
+    first_name TEXT,
+    last_name TEXT,
+    height INTEGER,
+    weight DECIMAL(5,2),
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+```
+
+#### Migration (ajout des colonnes manquantes)
+
+```sql
+ALTER TABLE profiles
+ADD COLUMN first_name TEXT,
+ADD COLUMN last_name TEXT,
+ADD COLUMN height INTEGER,
+ADD COLUMN weight DECIMAL(5,2),
+ADD COLUMN updated_at TIMESTAMPTZ DEFAULT NOW();
+```
+
+#### Politiques RLS requises
+
+```sql
+-- Lecture du profil
+CREATE POLICY "Users can view their own profile"
+ON profiles FOR SELECT
+TO authenticated
+USING (auth.uid() = id);
+
+-- Insertion du profil (pour le trigger ou inscription)
+CREATE POLICY "Users can insert their own profile"
+ON profiles FOR INSERT
+TO authenticated
+WITH CHECK (auth.uid() = id);
+
+-- Mise à jour du profil
+CREATE POLICY "Users can update their own profile"
+ON profiles FOR UPDATE
+TO authenticated
+USING (auth.uid() = id)
+WITH CHECK (auth.uid() = id);
+```
+
+#### Trigger pour création automatique
+
+Un trigger `handle_new_user` crée automatiquement un profil vide lors de l'inscription. Ce trigger peut utiliser `updated_at`, d'où la nécessité de cette colonne.
+
+#### Méthode de mise à jour (JavaScript)
+
+La fonction `db.updateProfile()` utilise `upsert` avec `onConflict: 'id'` pour gérer les cas où le profil n'existe pas encore :
+
+```javascript
+async updateProfile(userId, profileData) {
+    const { data, error } = await supabase
+        .from('profiles')
+        .upsert({
+            id: userId,
+            first_name: profileData.firstName,
+            last_name: profileData.lastName,
+            height: profileData.height,
+            weight: profileData.weight
+        }, {
+            onConflict: 'id'
+        })
+        .select();
+
+    if (error) {
+        console.error('Profile update error:', error);
+        throw error;
+    }
+    return data;
+}
+```
+
 ---
 
 ## 3. Fonctionnalités Détaillées
@@ -375,6 +457,7 @@ La vue Compte est organisée en 3 blocs distincts de haut en bas:
 - `gymtracker_active_workout`: Entraînement en cours
 - Protection contre la perte de données (refresh, fermeture)
 - Nettoyage automatique à la fin de l'entraînement
+- Réinitialisation du chrono si l'entraînement restauré date de plus de 6h (évite les durées aberrantes)
 
 ---
 
