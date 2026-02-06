@@ -210,7 +210,8 @@ async updateProfile(userId, profileData) {
 #### Affichage
 - Liste de cartes expansibles
 - Nombre de séances affiché
-- Actions: supprimer le programme
+- Si un seul programme : déplié par défaut ; si plusieurs : tous repliés
+- Actions: supprimer le programme (texte gris discret `btn-ghost-muted`)
 
 #### Suppression
 - Confirmation requise
@@ -225,12 +226,22 @@ async updateProfile(userId, profileData) {
 #### Affichage
 - Liste imbriquée dans le programme
 - Nombre d'exercices affiché
-- Expansion pour voir le détail
+- Bouton d'accès rapide play (rond orange 40px, `btn-quick-start`) visible sur chaque card séance pour démarrer directement
+- Expansion pour voir le détail (clic sur le texte de la séance)
 
 #### Actions
 - Ajouter des exercices
-- Démarrer l'entraînement
-- Supprimer la séance
+- Démarrer l'entraînement (bouton play rapide ou bouton orange pleine largeur dans la séance ouverte)
+- Supprimer la séance (texte rouge simple `btn-ghost-danger`, sans bordure)
+
+#### Hiérarchie des boutons (section Programmes)
+| Priorité | Action | Style |
+|----------|--------|-------|
+| 1 (max) | Démarrer séance (quick-start) | Bouton rond orange 40px + ombre |
+| 2 | Démarrer (séance ouverte) | Bouton orange pleine largeur |
+| 3 | Créer programme / Nouvelle séance / Ajouter exercice | Boutons gris secondaires |
+| 4 | Supprimer séance | Texte rouge sans bordure |
+| 5 (min) | Supprimer programme | Texte gris discret |
 
 ### 3.4 Gestion des Exercices
 

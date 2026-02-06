@@ -1349,7 +1349,7 @@
       );
     }
     function ProgramsView({ programs, onAddProgram, onDeleteProgram, onAddSession, onDeleteSession, onAddExercise, onEditExercise, onDeleteExercise, onReorderExercises, onStartWorkout }) {
-      const [expandedProgram, setExpandedProgram] = useState(null);
+      const [expandedProgram, setExpandedProgram] = useState(programs.length === 1 ? programs[0].id : null);
       const [expandedSession, setExpandedSession] = useState(null);
       const dragState = useRef({
         isDragging: false,
@@ -1574,14 +1574,22 @@
                 <div style={{ marginTop: '16px' }}>
                   {program.sessions.map(session => (
                     <div key={session.id} style={{ marginBottom: '12px' }}>
-                      <div
-                        className="exercise-item"
-                        onClick={() => setExpandedSession(expandedSession === session.id ? null : session.id)}
-                      >
-                        <div className="exercise-name">{session.name}</div>
-                        <div className="exercise-rest">
-                          {session.exercises.length} exercice{session.exercises.length > 1 ? 's' : ''}
+                      <div className="exercise-item" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                        <div
+                          style={{ flex: 1 }}
+                          onClick={() => setExpandedSession(expandedSession === session.id ? null : session.id)}
+                        >
+                          <div className="exercise-name">{session.name}</div>
+                          <div className="exercise-rest">
+                            {session.exercises.length} exercice{session.exercises.length > 1 ? 's' : ''}
+                          </div>
                         </div>
+                        <button
+                          className="btn-quick-start"
+                          onClick={(e) => { e.stopPropagation(); onStartWorkout(program, session); }}
+                        >
+                          <Icon name="play" size={18} />
+                        </button>
                       </div>
 
                       {expandedSession === session.id && (
@@ -1650,7 +1658,7 @@
                               <Icon name="play" size={16} /> Démarrer cette séance
                             </button>
                             <button
-                              className="btn btn-delete"
+                              className="btn-ghost-danger"
                               onClick={() => onDeleteSession(program.id, session.id)}
                             >
                               Supprimer la séance
@@ -1669,10 +1677,10 @@
                       + Nouvelle séance
                     </button>
                     <button
-                      className="btn btn-delete"
+                      className="btn-ghost-muted"
                       onClick={() => onDeleteProgram(program.id)}
                     >
-                      Supprimer
+                      Supprimer le programme
                     </button>
                   </div>
                 </div>
