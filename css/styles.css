@@ -324,7 +324,7 @@ body {
 .chart-bar {
     width: 100%;
     max-width: 40px;
-    border-radius: 20px;
+    border-radius: 8px;
     transition: height 0.3s ease;
 }
 

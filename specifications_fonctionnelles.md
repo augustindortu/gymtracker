@@ -414,7 +414,7 @@ La vue Compte est organisée en 3 blocs distincts de haut en bas:
 | Temps total | `clock` | Durée cumulée des entraînements de la semaine |
 
 **Graphique des 5 dernières semaines**:
-- Type: Barres verticales en forme de pill (border-radius 20px, max-width 40px)
+- Type: Barres verticales arrondies (border-radius 8px, max-width 40px)
 - Données: Nombre de séances par semaine
 - Période: Semaine courante + 4 semaines précédentes
 - Semaine: Lundi → Dimanche
