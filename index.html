@@ -1349,8 +1349,14 @@
       );
     }
     function ProgramsView({ programs, onAddProgram, onDeleteProgram, onAddSession, onDeleteSession, onAddExercise, onEditExercise, onDeleteExercise, onReorderExercises, onStartWorkout }) {
-      const [expandedProgram, setExpandedProgram] = useState(programs.length === 1 ? programs[0].id : null);
+      const [expandedProgram, setExpandedProgram] = useState(null);
       const [expandedSession, setExpandedSession] = useState(null);
+
+      useEffect(() => {
+        if (programs.length === 1) {
+          setExpandedProgram(programs[0].id);
+        }
+      }, [programs]);
       const dragState = useRef({
         isDragging: false,
         exercise: null,

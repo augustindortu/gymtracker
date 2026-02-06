@@ -210,7 +210,7 @@ async updateProfile(userId, profileData) {
 #### Affichage
 - Liste de cartes expansibles
 - Nombre de séances affiché
-- Si un seul programme : déplié par défaut ; si plusieurs : tous repliés
+- Si un seul programme : déplié par défaut via `useEffect` sur `programs` (pour gérer le chargement async) ; si plusieurs : tous repliés
 - Actions: supprimer le programme (texte gris discret `btn-ghost-muted`)
 
 #### Suppression
