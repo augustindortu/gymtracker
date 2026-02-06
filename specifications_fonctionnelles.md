@@ -410,7 +410,16 @@ async updateProfile(userId, profileData) {
   - `user` Compte
 - État actif: couleur accent (#FF6B35), stroke-width 2.5
 
-### 4.6 Vue Compte
+### 4.6 Banner Motivation (page Programmes)
+
+- Bandeau affiché en haut de la vue Programmes à chaque ouverture
+- **Salutation** : "Salut [Prénom]" (prénom chargé depuis le profil Supabase via `loadData`)
+- **Citation** : une citation courte tirée aléatoirement d'un pool de 25 phrases motivantes (`MOTIVATION_QUOTES`)
+- **Style** : fond dégradé bleu marine (`--primary` → `--primary-light`), texte blanc, `border-radius: 10px`
+- **Comportement** : disparaît automatiquement après 5 secondes ou au tap
+- **Fallback** : si le prénom n'est pas encore chargé, affiche "Champion"
+
+### 4.7 Vue Compte
 
 La vue Compte est organisée en 3 blocs distincts de haut en bas:
 

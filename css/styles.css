@@ -630,6 +630,31 @@ textarea.form-input {
     min-height: 80px;
 }
 
+/* ===== MOTIVATION BANNER ===== */
+
+.motivation-banner {
+    background: linear-gradient(135deg, var(--primary), var(--primary-light));
+    color: white;
+    padding: 16px 20px;
+    border-radius: var(--radius);
+    margin-bottom: 16px;
+    cursor: pointer;
+    animation: slideDown 0.3s ease;
+}
+
+.motivation-greeting {
+    font-size: 16px;
+    font-weight: 700;
+    margin-bottom: 4px;
+}
+
+.motivation-quote {
+    font-size: 13px;
+    font-weight: 500;
+    opacity: 0.85;
+    font-style: italic;
+}
+
 /* ===== CARDS ===== */
 
 .card {

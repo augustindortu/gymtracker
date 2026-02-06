@@ -469,6 +469,36 @@
       }
     };
 
+    const MOTIVATION_QUOTES = [
+      "No pain, no gain.",
+      "La discipline bat toujours la motivation.",
+      "Une rep de plus.",
+      "Le plus dur, c'est de commencer.",
+      "Ton futur toi te remerciera.",
+      "Chaque séance compte.",
+      "Pas d'excuses, que des résultats.",
+      "Sois plus fort qu'hier.",
+      "La régularité, c'est la clé.",
+      "Push harder.",
+      "Le talent, ça se travaille.",
+      "La douleur est temporaire.",
+      "Reste focus.",
+      "Les résultats prennent du temps. Lâche rien.",
+      "Repousse tes limites.",
+      "C'est dans la tête que ça se joue.",
+      "Progresse, ne compare pas.",
+      "Chaque jour est une chance de progresser.",
+      "Go time.",
+      "Pas de raccourcis.",
+      "Le meilleur investissement, c'est toi.",
+      "Ta seule limite, c'est toi.",
+      "Less talk, more lift.",
+      "Ça ne sera pas facile, mais ça vaut le coup.",
+      "Beast mode."
+    ];
+
+    const getGreeting = (firstName) => `Salut ${firstName}`;
+
     function App() {
       const [user, setUser] = useState(null);
       const [loading, setLoading] = useState(true);
@@ -483,6 +513,7 @@
       });
       const [programs, setPrograms] = useState([]);
       const [workoutHistory, setWorkoutHistory] = useState([]);
+      const [profile, setProfile] = useState(null);
       const [showModal, setShowModal] = useState(false);
       const [modalType, setModalType] = useState('');
       const [currentProgram, setCurrentProgram] = useState(null);
@@ -546,13 +577,15 @@
         if (!user) return;
 
         try {
-          const [programsData, historyData] = await Promise.all([
+          const [programsData, historyData, profileData] = await Promise.all([
             db.getPrograms(user.id),
-            db.getWorkoutHistory(user.id)
+            db.getWorkoutHistory(user.id),
+            db.getProfile(user.id)
           ]);
 
           setPrograms(programsData);
           setWorkoutHistory(historyData);
+          setProfile(profileData);
         } catch (error) {
           console.error('Error loading data:', error);
           alert('Erreur lors du chargement des données');
@@ -779,6 +812,7 @@
             {view === 'programs' && (
               <ProgramsView
                 programs={programs}
+                profile={profile}
                 onAddProgram={() => openModal('program')}
                 onDeleteProgram={deleteProgram}
                 onAddSession={(program) => openModal('session', program)}
@@ -1348,15 +1382,26 @@
         </div>
       );
     }
-    function ProgramsView({ programs, onAddProgram, onDeleteProgram, onAddSession, onDeleteSession, onAddExercise, onEditExercise, onDeleteExercise, onReorderExercises, onStartWorkout }) {
+    function ProgramsView({ programs, profile, onAddProgram, onDeleteProgram, onAddSession, onDeleteSession, onAddExercise, onEditExercise, onDeleteExercise, onReorderExercises, onStartWorkout }) {
       const [expandedProgram, setExpandedProgram] = useState(null);
       const [expandedSession, setExpandedSession] = useState(null);
+      const [showMotivation, setShowMotivation] = useState(true);
+      const [quote] = useState(() => MOTIVATION_QUOTES[Math.floor(Math.random() * MOTIVATION_QUOTES.length)]);
 
       useEffect(() => {
         if (programs.length === 1) {
           setExpandedProgram(programs[0].id);
         }
       }, [programs]);
+
+      useEffect(() => {
+        if (showMotivation) {
+          const timer = setTimeout(() => setShowMotivation(false), 5000);
+          return () => clearTimeout(timer);
+        }
+      }, [showMotivation]);
+
+      const greeting = getGreeting(profile?.first_name || 'Champion');
       const dragState = useRef({
         isDragging: false,
         exercise: null,
@@ -1567,6 +1612,12 @@
 
       return (
         <div className="view active">
+          {showMotivation && (
+            <div className="motivation-banner" onClick={() => setShowMotivation(false)}>
+              <div className="motivation-greeting">{greeting}</div>
+              <div className="motivation-quote">{quote}</div>
+            </div>
+          )}
           {programs.map(program => (
             <div key={program.id} className="card">
               <div onClick={() => setExpandedProgram(expandedProgram === program.id ? null : program.id)}>
