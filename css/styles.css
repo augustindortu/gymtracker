@@ -291,7 +291,7 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: flex-end;
-    height: 100px;
+    height: 140px;
     gap: 8px;
 }
 
@@ -301,6 +301,7 @@ body {
     flex-direction: column;
     align-items: center;
     height: 100%;
+    min-width: 0;
 }
 
 .chart-bar-value {
@@ -308,19 +309,33 @@ body {
     font-weight: 700;
     color: var(--text-primary);
     margin-bottom: 6px;
+    flex-shrink: 0;
+}
+
+.chart-bar-area {
+    flex: 1;
+    width: 100%;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    min-height: 0;
 }
 
 .chart-bar {
     width: 100%;
-    max-width: 32px;
-    background: var(--border);
-    border-radius: 4px 4px 0 0;
+    max-width: 40px;
+    border-radius: 20px;
     transition: height 0.3s ease;
-    flex-shrink: 0;
 }
 
 .chart-bar.current {
     background: var(--accent);
+    box-shadow: 0 0 12px rgba(255, 107, 53, 0.4);
+}
+
+.chart-bar-value.current {
+    color: var(--accent);
+    font-size: 14px;
 }
 
 .chart-bar-label {
@@ -328,6 +343,7 @@ body {
     color: var(--text-muted);
     font-weight: 600;
     margin-top: 8px;
+    flex-shrink: 0;
     text-align: center;
     white-space: nowrap;
 }

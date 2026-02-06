@@ -947,7 +947,7 @@
       };
 
       // Calculer la hauteur max pour le graphique
-      const maxWorkouts = Math.max(...weeklyData.map(w => w.count), 1);
+      const maxWorkouts = Math.max(...weeklyData.map(w => w.count), 5);
 
       if (loading) {
         return (
@@ -987,16 +987,26 @@
             <div className="weekly-chart">
               <div className="chart-title">Séances par semaine</div>
               <div className="chart-container">
-                {weeklyData.map((week, idx) => (
-                  <div key={idx} className="chart-bar-wrapper">
-                    <div className="chart-bar-value">{week.count}</div>
-                    <div
-                      className={`chart-bar ${idx === weeklyData.length - 1 ? 'current' : ''}`}
-                      style={{ height: `${(week.count / maxWorkouts) * 100}%`, minHeight: week.count > 0 ? '8px' : '4px' }}
-                    />
-                    <div className="chart-bar-label">{week.label}</div>
-                  </div>
-                ))}
+                {weeklyData.map((week, idx) => {
+                  const isCurrentWeek = idx === weeklyData.length - 1;
+                  const opacity = 0.15 + (idx / (weeklyData.length - 1)) * 0.25;
+                  const barBackground = isCurrentWeek
+                    ? 'var(--accent)'
+                    : `rgba(30, 58, 95, ${opacity})`;
+
+                  return (
+                    <div key={idx} className="chart-bar-wrapper">
+                      <div className={`chart-bar-value ${isCurrentWeek ? 'current' : ''}`}>{week.count}</div>
+                      <div className="chart-bar-area">
+                        <div
+                          className={`chart-bar ${isCurrentWeek ? 'current' : ''}`}
+                          style={{ height: `${(week.count / maxWorkouts) * 100}%`, minHeight: week.count > 0 ? '8px' : '4px', background: barBackground }}
+                        />
+                      </div>
+                      <div className="chart-bar-label">{week.label}</div>
+                    </div>
+                  );
+                })}
               </div>
             </div>
           </div>

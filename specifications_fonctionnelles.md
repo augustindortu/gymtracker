@@ -414,12 +414,15 @@ La vue Compte est organisée en 3 blocs distincts de haut en bas:
 | Temps total | `clock` | Durée cumulée des entraînements de la semaine |
 
 **Graphique des 5 dernières semaines**:
-- Type: Barres verticales
+- Type: Barres verticales en forme de pill (border-radius 20px, max-width 40px)
 - Données: Nombre de séances par semaine
 - Période: Semaine courante + 4 semaines précédentes
 - Semaine: Lundi → Dimanche
 - Labels: Format "14-20 janv."
-- Barre courante mise en avant avec couleur accent (#FF6B35)
+- Hauteur du conteneur: 140px, avec zone de barre isolée dans un conteneur flex-grow (`.chart-bar-area`) empêchant tout débordement
+- Échelle: `maxWorkouts` fixé à minimum 5 pour un rendu proportionné
+- Couleurs progressives: semaines passées en bleu marine (`--primary` #1E3A5F) avec opacité croissante de 15% à 40% (de la plus ancienne à la plus récente)
+- Semaine courante: barre en couleur accent (#FF6B35) avec glow orange (`box-shadow`), valeur affichée en orange et taille 14px
 
 #### B. Bloc Profil
 
