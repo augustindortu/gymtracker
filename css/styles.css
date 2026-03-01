@@ -223,6 +223,13 @@ body {
     margin-bottom: 20px;
 }
 
+.year-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
 .week-stat-card {
     background: var(--bg-secondary);
     border-radius: var(--radius);
@@ -346,6 +353,19 @@ body {
     flex-shrink: 0;
     text-align: center;
     white-space: nowrap;
+}
+
+/* Graphique mensuel */
+.monthly-chart .chart-bar-label {
+    font-size: 7.5px;
+}
+
+.monthly-chart .chart-bar-value {
+    min-height: 14px;
+}
+
+.chart-bar-label.future-label {
+    color: rgba(156, 163, 175, 0.45);
 }
 
 /* Bloc Profil */

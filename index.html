@@ -849,6 +849,7 @@
               <AccountView
                 user={user}
                 workoutHistory={workoutHistory}
+                programs={programs}
               />
             )}
           </div>
@@ -907,7 +908,7 @@
       return Math.round((end - start) / 60000);
     };
 
-    function AccountView({ user, workoutHistory }) {
+    function AccountView({ user, workoutHistory, programs }) {
       const [profile, setProfile] = useState(null);
       const [weekStats, setWeekStats] = useState({ workouts: 0, volume: 0, duration: 0 });
       const [weeklyData, setWeeklyData] = useState([]);
@@ -983,6 +984,84 @@
       // Calculer la hauteur max pour le graphique
       const maxWorkouts = Math.max(...weeklyData.map(w => w.count), 5);
 
+      // ——— Stats annuelles (calculées côté client) ———
+      const currentYear = new Date().getFullYear();
+      const currentMonth = new Date().getMonth(); // 0-11
+
+      const yearWorkouts = workoutHistory.filter(w =>
+        new Date(w.completedAt).getFullYear() === currentYear
+      );
+
+      // Graphique 12 mois
+      const MONTH_LABELS = ['janv','févr','mars','avr','mai','juin','juil','août','sept','oct','nov','déc'];
+      const monthlyData = MONTH_LABELS.map((label, idx) => ({
+        label,
+        count: yearWorkouts.filter(w => new Date(w.completedAt).getMonth() === idx).length,
+        isCurrentMonth: idx === currentMonth,
+        isFuture: idx > currentMonth
+      }));
+      const maxMonthly = Math.max(...monthlyData.map(m => m.count), 3);
+
+      // Semaines écoulées dans l'année courante (lundi → aujourd'hui)
+      const getElapsedWeeksInYear = (year) => {
+        const weeks = [];
+        const today = new Date();
+        const jan1 = new Date(year, 0, 1);
+        const dayOfWeek = jan1.getDay();
+        const daysToFirstMonday = dayOfWeek === 0 ? 1 : dayOfWeek === 1 ? 0 : 8 - dayOfWeek;
+        let monday = new Date(year, 0, 1 + daysToFirstMonday);
+        while (monday <= today) {
+          const sunday = new Date(monday);
+          sunday.setDate(monday.getDate() + 6);
+          sunday.setHours(23, 59, 59, 999);
+          weeks.push({ start: new Date(monday), end: sunday });
+          monday = new Date(monday);
+          monday.setDate(monday.getDate() + 7);
+        }
+        return weeks;
+      };
+      const elapsedWeeks = getElapsedWeeksInYear(currentYear);
+
+      // % semaines actives (≥ 1 séance)
+      const activeWeeksCount = elapsedWeeks.filter(week =>
+        yearWorkouts.some(w => {
+          const d = new Date(w.completedAt);
+          return d >= week.start && d <= week.end;
+        })
+      ).length;
+      const weekActivityRate = elapsedWeeks.length > 0
+        ? Math.round(activeWeeksCount / elapsedWeeks.length * 100) : 0;
+
+      // Programme principal = le plus utilisé en currentYear
+      const primaryProgramId = (() => {
+        const counts = {};
+        yearWorkouts.forEach(w => { if (w.programId) counts[w.programId] = (counts[w.programId] || 0) + 1; });
+        return Object.entries(counts).sort((a, b) => b[1] - a[1])[0]?.[0];
+      })();
+      const primaryProgram = programs?.find(p => p.id === primaryProgramId) || programs?.[0];
+      const expectedSessions = primaryProgram?.sessions?.map(s => s.name.toLowerCase().trim()) || [];
+      const N = expectedSessions.length;
+
+      // Pour chaque semaine écoulée : est-ce que toutes les séances du programme ont été faites ?
+      const weekStatuses = elapsedWeeks.map(week => {
+        const ww = yearWorkouts.filter(w => {
+          const d = new Date(w.completedAt);
+          return d >= week.start && d <= week.end;
+        });
+        if (N === 0) return ww.length >= 1;
+        const done = ww.map(w => (w.sessionName || '').toLowerCase().trim());
+        return expectedSessions.every(s => done.includes(s));
+      });
+
+      // % semaines complètes
+      const completeWeeksCount = weekStatuses.filter(Boolean).length;
+      const completeWeeksRate = elapsedWeeks.length > 0
+        ? Math.round(completeWeeksCount / elapsedWeeks.length * 100) : 0;
+
+      // Record de semaines consécutives complètes
+      let bestStreak = 0, curStreak = 0;
+      weekStatuses.forEach(ok => { ok ? (++curStreak, bestStreak = Math.max(bestStreak, curStreak)) : (curStreak = 0); });
+
       if (loading) {
         return (
           <div className="account-view">
@@ -996,6 +1075,66 @@
 
       return (
         <div className="account-view">
+          {/* ——— Bloc Stats Annuelles ——— */}
+          <div className="motivation-block">
+            <div className="motivation-title"><Icon name="trophy" size={18} /> En {currentYear}</div>
+            <div className="year-stats-grid">
+              <div className="week-stat-card highlight">
+                <div className="week-stat-icon"><Icon name="activity" size={20} /></div>
+                <div className="week-stat-value">{yearWorkouts.length}</div>
+                <div className="week-stat-label">Séances</div>
+              </div>
+              <div className="week-stat-card">
+                <div className="week-stat-icon"><Icon name="calendar-check" size={20} /></div>
+                <div className="week-stat-value">{weekActivityRate}%</div>
+                <div className="week-stat-label">Semaines actives</div>
+              </div>
+              <div className="week-stat-card">
+                <div className="week-stat-icon"><Icon name="check-circle" size={20} /></div>
+                <div className="week-stat-value">{completeWeeksRate}%</div>
+                <div className="week-stat-label">Sem. complètes</div>
+              </div>
+              <div className="week-stat-card">
+                <div className="week-stat-icon"><Icon name="flame" size={20} /></div>
+                <div className="week-stat-value">{bestStreak}</div>
+                <div className="week-stat-label">Record consécutif</div>
+              </div>
+            </div>
+            {/* Graphique 12 mois */}
+            <div className="weekly-chart monthly-chart">
+              <div className="chart-title">Séances par mois</div>
+              <div className="chart-container">
+                {monthlyData.map((month, idx) => {
+                  const barBg = month.isFuture
+                    ? 'rgba(0,0,0,0.05)'
+                    : month.isCurrentMonth
+                    ? 'var(--accent)'
+                    : `rgba(30, 58, 95, ${0.1 + (idx / 11) * 0.3})`;
+                  return (
+                    <div key={idx} className="chart-bar-wrapper">
+                      <div className={`chart-bar-value ${month.isCurrentMonth ? 'current' : ''}`}>
+                        {month.isFuture ? '\u00a0' : month.count}
+                      </div>
+                      <div className="chart-bar-area">
+                        <div
+                          className={`chart-bar ${month.isCurrentMonth ? 'current' : ''}`}
+                          style={{
+                            height: month.isFuture ? '4px' : `${(month.count / maxMonthly) * 100}%`,
+                            minHeight: (!month.isFuture && month.count > 0) ? '8px' : '4px',
+                            background: barBg
+                          }}
+                        />
+                      </div>
+                      <div className={`chart-bar-label ${month.isFuture ? 'future-label' : ''}`}>
+                        {month.label}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+
           {/* Bloc Motivation - Statistiques de la semaine */}
           <div className="motivation-block">
             <div className="motivation-title"><Icon name="calendar" size={18} /> Cette semaine</div>

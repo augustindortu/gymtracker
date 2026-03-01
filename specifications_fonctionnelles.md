@@ -19,9 +19,10 @@ gymtracker/
 ├── css/
 │   └── styles.css          # Feuilles de styles
 ├── sql/
-│   ├── migration-position.sql   # Migration colonne position
-│   ├── migration-profiles.sql   # Migration table profiles
-│   └── rls-policies.sql         # Politiques Row Level Security
+│   ├── migration-position.sql          # Migration colonne position
+│   ├── migration-profiles.sql          # Migration table profiles
+│   ├── migration-default-program.sql   # Programme par défaut nouveaux comptes
+│   └── rls-policies.sql                # Politiques Row Level Security
 ├── .gitignore
 ├── README.md
 └── specifications_fonctionnelles.md
@@ -150,7 +151,20 @@ WITH CHECK (auth.uid() = id);
 
 #### Trigger pour création automatique
 
-Un trigger `handle_new_user` crée automatiquement un profil vide lors de l'inscription. Ce trigger peut utiliser `updated_at`, d'où la nécessité de cette colonne.
+Un trigger `handle_new_user` (sur `auth.users`) s'exécute à chaque inscription et :
+1. Crée un profil vide (`profiles`)
+2. Appelle `create_default_program(user_id)` pour créer le programme par défaut
+
+```sql
+CREATE OR REPLACE FUNCTION public.handle_new_user()
+RETURNS TRIGGER AS $$
+BEGIN
+  INSERT INTO public.profiles (id) VALUES (NEW.id);
+  PERFORM public.create_default_program(NEW.id);
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+```
 
 #### Méthode de mise à jour (JavaScript)
 
@@ -203,7 +217,22 @@ async updateProfile(userId, profileData) {
 
 ### 3.2 Gestion des Programmes
 
-#### Création
+#### Programme par défaut (nouveaux comptes)
+
+À chaque inscription, le programme **"Push Pull Leg FB"** est automatiquement créé via le trigger `handle_new_user` → `create_default_program()`. Il est composé de 4 séances et 24 exercices :
+
+| Séance | Exercices |
+|--------|-----------|
+| **Push** | Développé Couché (4×180s), Développé incliné (3×120s), Tirage menton + DM unilatéral (3×120s), Pec fly (3×120s), Triceps Poulie (3×120s), Écartés latéral (3×120s) |
+| **Pull** | Muscle Up (3×180s), Tractions lestées (4×180s), Rowing Poulie Prise Neutre (3×120s), Tirage Vertical Prise Neutre (3×120s), Rear Delt (3×90s), Curl Biceps Pupitre assis (3×120s) |
+| **Leg** | Squat (3×180s), Presse leg (3×150s), Relevé de jambes (3×150s), Leg extension (3×150s), Leg curl (3×150s), Crunch à la machine (2×150s) |
+| **Full Body** | Développé couché (4×180s), Squat (3×180s), Tractions lestées (4×180s), Contractions mollet (3×90s), Curl assis incliné (3×120s), Curl triceps allongé (2×120s) |
+
+- Ce programme est **100% éditable et supprimable** par l'utilisateur (même schéma que tout autre programme)
+- Les comptes existants ne sont pas affectés
+- Logique entièrement côté Supabase (fonction `SECURITY DEFINER` — pas de code client)
+
+#### Création (manuelle)
 - Nom du programme (texte libre)
 - Association automatique à l'utilisateur connecté
 
@@ -421,9 +450,35 @@ async updateProfile(userId, profileData) {
 
 ### 4.7 Vue Compte
 
-La vue Compte est organisée en 3 blocs distincts de haut en bas:
+La vue Compte est organisée en **4 blocs** distincts de haut en bas:
 
-#### A. Bloc Motivation / Vue d'ensemble
+#### A. Bloc Stats Annuelles ("En [année]")
+
+Stats calculées **entièrement côté client** à partir de `workoutHistory` et `programs` (aucune requête DB supplémentaire). Période = année civile courante (1er jan → 31 déc).
+
+**Grille 2×2 — 4 cartes** (classe `.year-stats-grid`):
+
+| Carte | Icône | Définition |
+|-------|-------|-----------|
+| Séances | `activity` | Nombre total de séances dans l'année (fond accent, mise en avant) |
+| Semaines actives | `calendar-check` | % de semaines écoulées avec ≥ 1 séance |
+| Sem. complètes | `check-circle` | % de semaines écoulées où TOUTES les séances du programme principal ont été faites |
+| Record consécutif | `flame` | Meilleure série de semaines consécutives avec le programme complet (en 2026) |
+
+**Définitions techniques :**
+- **Programme principal** = programme le plus utilisé dans l'année dans l'historique (fallback: `programs[0]`)
+- **Semaine complète** = semaine (lun-dim) où tous les `session_name` du programme principal apparaissent dans l'historique
+- **Semaine** = Lundi → Dimanche (cohérent avec les stats hebdo)
+
+**Graphique 12 mois** (classe `.weekly-chart.monthly-chart`) :
+- 12 barres verticales (Jan → Déc)
+- Mois passés : bleu marine progressif (opacité 10% → 40%)
+- Mois courant : orange accent avec glow
+- Mois futurs : barre grisée (`rgba(0,0,0,0.05)`), valeur vide, label grisé (`.future-label`)
+- Échelle : `maxMonthly` fixé à minimum 3
+- Labels : abréviations 4 lettres max (`janv`, `févr`, etc.) en 7.5px
+
+#### B. Bloc "Cette semaine"
 
 **Statistiques de la semaine courante** (lundi → dimanche):
 
@@ -444,7 +499,7 @@ La vue Compte est organisée en 3 blocs distincts de haut en bas:
 - Couleurs progressives: semaines passées en bleu marine (`--primary` #1E3A5F) avec opacité croissante de 15% à 40% (de la plus ancienne à la plus récente)
 - Semaine courante: barre en couleur accent (#FF6B35) avec glow orange (`box-shadow`), valeur affichée en orange et taille 14px
 
-#### B. Bloc Profil
+#### C. Bloc Profil
 
 **Affichage**:
 - Avatar circulaire avec initiales (fond bleu profond #1E3A5F, texte blanc)
@@ -462,7 +517,7 @@ La vue Compte est organisée en 3 blocs distincts de haut en bas:
   - Poids (nombre en kg avec décimales)
 - Boutons: "Annuler" / "Enregistrer"
 
-#### C. Actions
+#### D. Actions
 
 - Bouton avec icône `log-out` "Se déconnecter" (style outline danger)
 
@@ -487,7 +542,9 @@ La vue Compte est organisée en 3 blocs distincts de haut en bas:
 
 ```mermaid
 flowchart TD
-    A[Inscription/Connexion] --> B[Créer un programme]
+    A[Inscription] --> A2[Programme 'Push Pull Leg FB' créé automatiquement]
+    A2 --> F[Démarrer un entraînement]
+    A --> B[Créer un programme personnalisé]
     B --> C[Ajouter des séances]
     C --> D[Ajouter des exercices]
     D --> E[Réordonner les exercices]
